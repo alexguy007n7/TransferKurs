@@ -3,231 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TransferPile · Firebase Room (Host Delete)</title>
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+    <title>P2P Network Sharing · PeerJS</title>
+    <!-- PeerJS Library -->
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
-        body {
-            background: #f5f7fa;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 24px;
-        }
-        .app {
-            max-width: 1000px;
-            width: 100%;
-            background: white;
-            border-radius: 24px;
-            box-shadow: 0 12px 40px rgba(0,0,0,0.04);
-            padding: 32px;
-        }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 28px;
-            flex-wrap: wrap;
-            gap: 16px;
-        }
-        .title {
-            font-size: 28px;
-            font-weight: 700;
-            color: #0a1e2f;
-        }
-        .badge {
-            background: #e6f0fa;
-            color: #0066cc;
-            padding: 8px 18px;
-            border-radius: 40px;
-            font-size: 14px;
-            font-weight: 600;
-        }
-        .room-header {
-            background: #f1f5f9;
-            border-radius: 20px;
-            padding: 24px;
-            margin-bottom: 24px;
-        }
-        .room-key-section {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-        }
-        .key-badge {
-            background: #0a1e2f;
-            color: white;
-            padding: 10px 24px;
-            border-radius: 40px;
-            font-weight: 600;
-            font-size: 18px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .btn {
-            background: white;
-            border: 1px solid #d1d9e6;
-            padding: 10px 20px;
-            border-radius: 40px;
-            font-weight: 600;
-            font-size: 14px;
-            color: #1e293b;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: 0.15s;
-        }
-        .btn-primary {
-            background: #0a1e2f;
-            border: none;
-            color: white;
-        }
-        .btn-primary:hover {
-            background: #143750;
-        }
-        .btn-small {
-            padding: 8px 16px;
-            font-size: 13px;
-        }
-        .btn-outline {
-            background: white;
-            border: 1px solid #0a1e2f;
-            color: #0a1e2f;
-        }
-        .room-input-area {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-top: 16px;
-            flex-wrap: wrap;
-        }
-        .room-input-area input {
-            flex: 1;
-            min-width: 200px;
-            padding: 12px 20px;
-            border: 1px solid #cbd5e1;
-            border-radius: 40px;
-            font-size: 15px;
-        }
-        .upload-area {
-            background: #eef2ff;
-            border-radius: 20px;
-            padding: 24px;
-            margin-bottom: 24px;
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-        .file-list {
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 20px;
-            padding: 20px;
-            min-height: 200px;
-            max-height: 400px;
-            overflow-y: auto;
-        }
-        .file-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 20px;
-            background: #fafcfc;
-            border-radius: 16px;
-            margin-bottom: 10px;
-            border-left: 4px solid #3b82f6;
-        }
-        .file-item:hover {
-            background: #f1f9ff;
-        }
-        .file-detail {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        .file-name {
-            font-weight: 600;
-            color: #0f172a;
-        }
-        .file-meta {
-            font-size: 13px;
-            color: #5e6f7e;
-        }
-        .btn-download, .btn-delete {
-            background: none;
-            border: 1px solid #e2e8f0;
-            padding: 8px 16px;
-            border-radius: 30px;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: 0.1s;
-        }
-        .btn-download {
-            color: #0a1e2f;
-        }
-        .btn-download:hover {
-            background: #e6f0fa;
-            border-color: #3b82f6;
-        }
-        .btn-delete {
-            color: #b22234;
-        }
-        .btn-delete:hover {
-            background: #fee2e2;
-            border-color: #b91c1c;
-        }
-        .host-badge {
-            background: #ffc107;
-            color: #000;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 700;
-            margin-left: 8px;
-        }
-        .footer {
-            margin-top: 32px;
-            text-align: center;
-            color: #6a7a8a;
-            font-size: 13px;
-            border-top: 1px solid #edf2f7;
-            padding-top: 24px;
-        }
-        .hidden {
-            display: none;
-        }
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(0,0,0,0.1);
-            border-radius: 50%;
-            border-top-color: #0a1e2f;
-            animation: spin 0.8s linear infinite;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: #f5f7fa; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 24px; }
+        .app { max-width: 1000px; width: 100%; background: white; border-radius: 24px; box-shadow: 0 12px 40px rgba(0,0,0,0.04); padding: 32px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; flex-wrap: wrap; gap: 16px; }
+        .title { font-size: 28px; font-weight: 700; color: #0a1e2f; }
+        .badge { background: #e6f0fa; color: #0066cc; padding: 8px 18px; border-radius: 40px; font-size: 14px; font-weight: 600; }
+        .room-header { background: #f1f5f9; border-radius: 20px; padding: 24px; margin-bottom: 24px; }
+        .room-key-section { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
+        .key-badge { background: #0a1e2f; color: white; padding: 10px 24px; border-radius: 40px; font-weight: 600; font-size: 18px; display: inline-flex; align-items: center; gap: 8px; }
+        .btn { background: white; border: 1px solid #d1d9e6; padding: 10px 20px; border-radius: 40px; font-weight: 600; font-size: 14px; color: #1e293b; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.15s; }
+        .btn-primary { background: #0a1e2f; border: none; color: white; }
+        .btn-primary:hover { background: #143750; }
+        .btn-small { padding: 8px 16px; font-size: 13px; }
+        .btn-outline { background: white; border: 1px solid #0a1e2f; color: #0a1e2f; }
+        .room-input-area { display: flex; align-items: center; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+        .room-input-area input { flex: 1; min-width: 200px; padding: 12px 20px; border: 1px solid #cbd5e1; border-radius: 40px; font-size: 15px; }
+        .upload-area { background: #eef2ff; border-radius: 20px; padding: 24px; margin-bottom: 24px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+        .file-list { background: white; border: 1px solid #e2e8f0; border-radius: 20px; padding: 20px; min-height: 200px; max-height: 400px; overflow-y: auto; }
+        .file-item { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; background: #fafcfc; border-radius: 16px; margin-bottom: 10px; border-left: 4px solid #3b82f6; }
+        .file-item:hover { background: #f1f9ff; }
+        .file-detail { display: flex; flex-direction: column; gap: 4px; }
+        .file-name { font-weight: 600; color: #0f172a; }
+        .file-meta { font-size: 13px; color: #5e6f7e; }
+        .btn-download, .btn-delete { background: none; border: 1px solid #e2e8f0; padding: 8px 16px; border-radius: 30px; font-size: 13px; font-weight: 500; cursor: pointer; transition: 0.1s; }
+        .btn-download { color: #0a1e2f; }
+        .btn-download:hover { background: #e6f0fa; border-color: #3b82f6; }
+        .btn-delete { color: #b22234; }
+        .btn-delete:hover { background: #fee2e2; border-color: #b91c1c; }
+        .host-badge { background: #ffc107; color: #000; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; margin-left: 8px; }
+        .footer { margin-top: 32px; text-align: center; color: #6a7a8a; font-size: 13px; border-top: 1px solid #edf2f7; padding-top: 24px; }
+        .hidden { display: none; }
+        .loading { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(0,0,0,0.1); border-radius: 50%; border-top-color: #0a1e2f; animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
+        .status-badge { background: #e2e8f0; padding: 4px 12px; border-radius: 20px; font-size: 12px; }
     </style>
 </head>
 <body>
     <div class="app">
         <div class="header">
-            <span class="title">∞ TransferPile · Room Only</span>
-            <span class="badge">FIREBASE · HOST DELETE</span>
+            <span class="title">🖧 P2P Network Sharing</span>
+            <span class="badge">WEBRTC · PEERJS · HOST DELETE</span>
         </div>
 
         <!-- ROOM CONTROLLER -->
@@ -240,22 +60,24 @@
                 </div>
                 <div style="display: flex; gap: 8px;">
                     <button class="btn-small" id="generateKeyBtn">🎲 Generate Baru</button>
-                    <button class="btn-small btn-primary" id="joinRoomBtn">🔄 Join</button>
+                    <button class="btn-small btn-primary" id="joinRoomBtn">🔄 Join Room</button>
                 </div>
             </div>
             <div class="room-input-area">
                 <input type="text" id="roomKeyInput" placeholder="Masukkan key room...">
                 <span style="color: #5e6f7e;">lalu klik Join</span>
             </div>
-            <div style="margin-top: 16px; font-size: 14px;" id="roomStatus">
-                ⏳ Memuat...
+            <div style="margin-top: 16px; font-size: 14px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                <span id="roomStatus">⏳ Menyiapkan Peer...</span>
+                <span id="roleBadge" class="status-badge">-</span>
+                <span id="peerIdDisplay" class="status-badge" style="background:#dbeafe;">Peer ID: -</span>
             </div>
         </div>
 
-        <!-- UPLOAD KE ROOM -->
-        <div class="upload-area">
-            <span style="font-weight: 600; font-size: 16px;">⬆️ Upload ke room ini:</span>
-            <label for="roomFileInput" class="btn btn-primary">
+        <!-- UPLOAD KE ROOM (hanya muncul jika sudah join dan sebagai host/guest? Guest juga bisa upload) -->
+        <div class="upload-area" id="uploadArea">
+            <span style="font-weight: 600; font-size: 16px;">⬆️ Upload ke room:</span>
+            <label for="roomFileInput" class="btn btn-primary" id="uploadBtnLabel">
                 📁 Pilih File
             </label>
             <input type="file" id="roomFileInput" multiple class="hidden">
@@ -268,291 +90,593 @@
             <span id="fileCount" style="color: #3b82f6; font-size: 14px;"></span>
         </div>
         <div class="file-list" id="fileListContainer">
-            <div style="color: #64748b; text-align: center; padding: 40px;">⏳ Memuat file...</div>
+            <div style="color: #64748b; text-align: center; padding: 40px;">⏳ Menunggu koneksi peer...</div>
         </div>
 
         <div class="footer">
-            ⚡ OXYX · PROTOKOL X · HANYA HOST YANG BISA HAPUS · FILE SHARING REAL-TIME
+            ⚡ OXYX · PROTOKOL X · PEER‑TO‑PEER · HOST TERSIMPAN DI BROWSER
         </div>
     </div>
 
     <script>
-        // ========== FIREBASE KONFIGURASI ==========
-        // 🔁 GANTI DENGAN KONFIGURASI FIREBASE ANDA!
-        const firebaseConfig = {
-            apiKey: "AIzaSyDummy123456789",
-            authDomain: "your-project.firebaseapp.com",
-            projectId: "your-project",
-            storageBucket: "your-project.appspot.com",
-            messagingSenderId: "123456789",
-            appId: "1:123456789:web:abcdef"
-        };
+        (function() {
+            "use strict";
 
-        // Inisialisasi Firebase
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const storage = firebase.storage();
+            // ========== KONFIGURASI PEERJS ==========
+            const PEER_SERVER_HOST = '0.peerjs.com';   // PeerJS cloud server
+            const PEER_SERVER_PORT = 443;
+            const PEER_SERVER_PATH = '/';
+            const PEER_DEBUG = 1;                     // 0: none, 1: errors, 2: all
 
-        // ========== GLOBAL STATE ==========
-        let currentRoomKey = null;
-        let currentUserHostId = null; // Device ID untuk identifikasi host
-        let unsubscribeFiles = null;   // Listener Firestore
+            // ========== GLOBAL STATE ==========
+            let currentRoomKey = null;                 // key room aktif
+            let isHost = false;                       // apakah device ini host?
+            let peer = null;                          // instance Peer
+            let connections = [];                     // daftar koneksi ke host (untuk host)
+            let hostConnection = null;                // koneksi ke host (untuk guest)
+            let fileMetadata = [];                    // daftar metadata file di room (disimpan host)
+            let fileChunks = {};                      // temporary untuk menerima chunk upload
 
-        // Generate unique device ID (disimpan di localStorage)
-        const DEVICE_ID_KEY = 'TransferPile_DeviceID';
-        let deviceId = localStorage.getItem(DEVICE_ID_KEY);
-        if (!deviceId) {
-            deviceId = 'device_' + Math.random().toString(36).substring(2) + Date.now();
-            localStorage.setItem(DEVICE_ID_KEY, deviceId);
-        }
+            // ========== INDEXEDDB STORAGE (HOST) ==========
+            const DB_NAME = 'P2PFileSharing';
+            const DB_VERSION = 1;
+            const STORE_NAME = 'files';
 
-        // ========== ELEMEN DOM ==========
-        const currentRoomKeyBadge = document.getElementById('currentRoomKeyBadge');
-        const copyKeyBtn = document.getElementById('copyKeyBtn');
-        const generateKeyBtn = document.getElementById('generateKeyBtn');
-        const joinRoomBtn = document.getElementById('joinRoomBtn');
-        const roomKeyInput = document.getElementById('roomKeyInput');
-        const roomStatus = document.getElementById('roomStatus');
-        const roomFileInput = document.getElementById('roomFileInput');
-        const uploadStatus = document.getElementById('uploadStatus');
-        const fileListContainer = document.getElementById('fileListContainer');
-        const fileCount = document.getElementById('fileCount');
+            let db = null;
 
-        // ========== FUNGSI BANTU ==========
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        function formatBytes(bytes) {
-            if (bytes === 0) return '0 B';
-            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(1024));
-            return parseFloat((bytes / Math.pow(1024, i)).toFixed(1)) + ' ' + (sizes[i] || '');
-        }
-
-        function generateRoomKey() {
-            return Math.random().toString(36).substring(2, 10); // 8 karakter
-        }
-
-        // ========== FIRESTORE: AMBIL ATAU BUAT ROOM ==========
-        async function getOrCreateRoom(roomKey) {
-            const roomRef = db.collection('rooms').doc(roomKey);
-            const roomSnap = await roomRef.get();
-
-            if (!roomSnap.exists) {
-                // Room belum ada, user ini menjadi HOST
-                await roomRef.set({
-                    hostId: deviceId,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            function openDB() {
+                return new Promise((resolve, reject) => {
+                    if (db) return resolve(db);
+                    const request = indexedDB.open(DB_NAME, DB_VERSION);
+                    request.onerror = () => reject(request.error);
+                    request.onsuccess = () => {
+                        db = request.result;
+                        resolve(db);
+                    };
+                    request.onupgradeneeded = (e) => {
+                        const db = e.target.result;
+                        if (!db.objectStoreNames.contains(STORE_NAME)) {
+                            db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+                        }
+                    };
                 });
-                console.log(`Room ${roomKey} dibuat, host: ${deviceId}`);
             }
 
-            // Ambil data room (untuk cek host)
-            const roomData = await roomRef.get();
-            return { id: roomRef.id, ...roomData.data() };
-        }
+            async function saveFileToDB(fileId, fileBlob) {
+                await openDB();
+                return new Promise((resolve, reject) => {
+                    const transaction = db.transaction([STORE_NAME], 'readwrite');
+                    const store = transaction.objectStore(STORE_NAME);
+                    const request = store.put({ id: fileId, blob: fileBlob });
+                    request.onsuccess = () => resolve();
+                    request.onerror = () => reject(request.error);
+                });
+            }
 
-        // ========== MULAI LISTENER FILE ==========
-        function subscribeToRoom(roomKey) {
-            // Hentikan listener sebelumnya
-            if (unsubscribeFiles) unsubscribeFiles();
+            async function getFileFromDB(fileId) {
+                await openDB();
+                return new Promise((resolve, reject) => {
+                    const transaction = db.transaction([STORE_NAME], 'readonly');
+                    const store = transaction.objectStore(STORE_NAME);
+                    const request = store.get(fileId);
+                    request.onsuccess = () => resolve(request.result?.blob || null);
+                    request.onerror = () => reject(request.error);
+                });
+            }
 
-            // Update UI
-            currentRoomKey = roomKey;
-            currentRoomKeyBadge.textContent = roomKey;
-            roomKeyInput.value = roomKey;
-            roomStatus.innerHTML = '🔗 Terhubung ke room: <strong>' + escapeHtml(roomKey) + '</strong>';
+            async function deleteFileFromDB(fileId) {
+                await openDB();
+                return new Promise((resolve, reject) => {
+                    const transaction = db.transaction([STORE_NAME], 'readwrite');
+                    const store = transaction.objectStore(STORE_NAME);
+                    const request = store.delete(fileId);
+                    request.onsuccess = () => resolve();
+                    request.onerror = () => reject(request.error);
+                });
+            }
 
-            // Listener file di room ini (order by uploadedAt descending)
-            const filesQuery = db.collection('rooms').doc(roomKey).collection('files')
-                .orderBy('uploadedAt', 'desc');
+            // ========== ELEMEN DOM ==========
+            const currentRoomKeyBadge = document.getElementById('currentRoomKeyBadge');
+            const copyKeyBtn = document.getElementById('copyKeyBtn');
+            const generateKeyBtn = document.getElementById('generateKeyBtn');
+            const joinRoomBtn = document.getElementById('joinRoomBtn');
+            const roomKeyInput = document.getElementById('roomKeyInput');
+            const roomStatus = document.getElementById('roomStatus');
+            const roleBadge = document.getElementById('roleBadge');
+            const peerIdDisplay = document.getElementById('peerIdDisplay');
+            const uploadArea = document.getElementById('uploadArea');
+            const uploadBtnLabel = document.getElementById('uploadBtnLabel');
+            const roomFileInput = document.getElementById('roomFileInput');
+            const uploadStatus = document.getElementById('uploadStatus');
+            const fileListContainer = document.getElementById('fileListContainer');
+            const fileCount = document.getElementById('fileCount');
 
-            unsubscribeFiles = filesQuery.onSnapshot(async (snapshot) => {
-                // Ambil data room untuk cek host
-                const roomDoc = await db.collection('rooms').doc(roomKey).get();
-                const roomData = roomDoc.data();
-                const isHost = (roomData?.hostId === deviceId);
+            // ========== FUNGSI BANTU ==========
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
 
-                // Update status host
-                if (isHost) {
-                    roomStatus.innerHTML += ' <span class="host-badge">👑 HOST (kamu bisa hapus)</span>';
-                } else {
-                    roomStatus.innerHTML += ' <span style="background:#e2e8f0; padding:4px 12px; border-radius:20px; font-size:12px;">👤 GUEST</span>';
-                }
+            function formatBytes(bytes) {
+                if (bytes === 0) return '0 B';
+                const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(1024));
+                return parseFloat((bytes / Math.pow(1024, i)).toFixed(1)) + ' ' + (sizes[i] || '');
+            }
 
-                // Tampilkan daftar file
-                const files = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                fileCount.textContent = `${files.length} file`;
+            function generateRoomKey() {
+                return Math.random().toString(36).substring(2, 10); // 8 karakter
+            }
 
-                if (files.length === 0) {
+            // ========== RENDER FILE LIST ==========
+            function renderFileList() {
+                fileCount.textContent = `${fileMetadata.length} file`;
+                if (fileMetadata.length === 0) {
                     fileListContainer.innerHTML = `<div style="color: #64748b; text-align: center; padding: 40px;">📭 Belum ada file di room ini. Upload sekarang!</div>`;
                     return;
                 }
 
                 let html = '';
-                files.forEach((file, index) => {
+                fileMetadata.forEach((file, index) => {
                     html += `
                         <div class="file-item" data-fileid="${escapeHtml(file.id)}">
                             <div class="file-detail">
                                 <span class="file-name">${escapeHtml(file.name)}</span>
                                 <span class="file-meta">${formatBytes(file.size)} · ${escapeHtml(file.type.substring(0, 30))}</span>
-                                <span style="font-size:12px; color:#5e6f7e;">dikirim: ${new Date(file.uploadedAt?.toDate()).toLocaleString()}</span>
+                                <span style="font-size:12px; color:#5e6f7e;">diupload: ${new Date(file.uploadedAt).toLocaleString()}</span>
                             </div>
                             <div style="display: flex; gap: 8px;">
-                                <button class="btn-download" data-url="${escapeHtml(file.url)}" data-name="${escapeHtml(file.name)}">⬇️ Download</button>
-                                ${isHost ? `<button class="btn-delete" data-room="${escapeHtml(roomKey)}" data-fileid="${escapeHtml(file.id)}" data-storagepath="${escapeHtml(file.storagePath)}">✕ Hapus</button>` : ''}
+                                <button class="btn-download" data-fileid="${escapeHtml(file.id)}" data-name="${escapeHtml(file.name)}">⬇️ Download</button>
+                                ${isHost ? `<button class="btn-delete" data-fileid="${escapeHtml(file.id)}">✕ Hapus</button>` : ''}
                             </div>
                         </div>
                     `;
                 });
                 fileListContainer.innerHTML = html;
 
-                // Event listener download
+                // Tombol download
                 fileListContainer.querySelectorAll('.btn-download').forEach(btn => {
-                    btn.addEventListener('click', function(e) {
-                        const url = this.dataset.url;
-                        const name = this.dataset.name;
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = name;
-                        a.target = '_blank';
-                        a.click();
-                        e.stopPropagation();
-                    });
-                });
-
-                // Event listener hapus (hanya host)
-                fileListContainer.querySelectorAll('.btn-delete').forEach(btn => {
-                    btn.addEventListener('click', async function(e) {
-                        const room = this.dataset.room;
-                        const fileId = this.dataset.fileid;
-                        const storagePath = this.dataset.storagepath;
-
-                        if (!room || !fileId || !storagePath) return;
-
-                        if (confirm('Hapus file ini dari room? Tindakan ini tidak bisa dibatalkan.')) {
-                            try {
-                                // Hapus dari Storage
-                                await storage.ref(storagePath).delete();
-                                // Hapus dari Firestore
-                                await db.collection('rooms').doc(room).collection('files').doc(fileId).delete();
-                                uploadStatus.innerText = '✅ File dihapus';
-                                setTimeout(() => { uploadStatus.innerText = ''; }, 3000);
-                            } catch (err) {
-                                console.error(err);
-                                alert('Gagal menghapus: ' + err.message);
+                    btn.addEventListener('click', async (e) => {
+                        const fileId = btn.dataset.fileid;
+                        const fileName = btn.dataset.name;
+                        if (isHost) {
+                            // Host: ambil dari IndexedDB
+                            const blob = await getFileFromDB(fileId);
+                            if (blob) {
+                                const url = URL.createObjectURL(blob);
+                                const a = document.createElement('a');
+                                a.href = url;
+                                a.download = fileName;
+                                a.click();
+                                URL.revokeObjectURL(url);
+                            }
+                        } else {
+                            // Guest: minta file ke host
+                            if (hostConnection) {
+                                hostConnection.send({
+                                    type: 'download-request',
+                                    fileId: fileId
+                                });
+                                uploadStatus.innerText = '⏳ Meminta file dari host...';
                             }
                         }
                         e.stopPropagation();
                     });
                 });
-            }, (error) => {
-                console.error('Listener error:', error);
-                roomStatus.innerHTML = '❌ Gagal memuat room. Periksa Firebase Security Rules.';
-            });
-        }
 
-        // ========== UPLOAD FILE KE ROOM ==========
-        async function uploadFilesToRoom(files) {
-            if (!currentRoomKey) {
-                alert('Join room terlebih dahulu.');
-                return;
-            }
-            if (!files || files.length === 0) return;
-
-            uploadStatus.innerHTML = '<span class="loading"></span> Mengupload...';
-
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                // Buat path unik di Storage: rooms/{roomKey}/{timestamp}-{fileName}
-                const timestamp = Date.now();
-                const safeName = file.name.replace(/[^a-zA-Z0-9.\-]/g, '_');
-                const storagePath = `rooms/${currentRoomKey}/${timestamp}_${safeName}`;
-                const storageRef = storage.ref(storagePath);
-
-                try {
-                    // Upload file ke Storage
-                    const snapshot = await storageRef.put(file);
-                    const downloadURL = await snapshot.ref.getDownloadURL();
-
-                    // Simpan metadata ke Firestore
-                    await db.collection('rooms').doc(currentRoomKey).collection('files').add({
-                        name: file.name,
-                        size: file.size,
-                        type: file.type,
-                        url: downloadURL,
-                        storagePath: storagePath,
-                        uploadedBy: deviceId,
-                        uploadedAt: firebase.firestore.FieldValue.serverTimestamp()
+                // Tombol hapus (hanya host)
+                if (isHost) {
+                    fileListContainer.querySelectorAll('.btn-delete').forEach(btn => {
+                        btn.addEventListener('click', async (e) => {
+                            const fileId = btn.dataset.fileid;
+                            if (confirm('Hapus file ini? Semua guest akan kehilangan akses.')) {
+                                await deleteFileFromDB(fileId);
+                                fileMetadata = fileMetadata.filter(f => f.id !== fileId);
+                                saveMetadataToLocalStorage();
+                                renderFileList();
+                                // Broadcast ke semua guest bahwa file dihapus
+                                broadcastToGuests({
+                                    type: 'file-deleted',
+                                    fileId: fileId
+                                });
+                                uploadStatus.innerText = '✅ File dihapus';
+                                setTimeout(() => { uploadStatus.innerText = ''; }, 3000);
+                            }
+                            e.stopPropagation();
+                        });
                     });
-
-                    uploadStatus.innerText = `✅ Upload selesai (${i+1}/${files.length})`;
-                } catch (err) {
-                    console.error(err);
-                    uploadStatus.innerText = `❌ Gagal upload ${file.name}: ${err.message}`;
                 }
             }
 
-            setTimeout(() => { uploadStatus.innerText = ''; }, 3000);
-            roomFileInput.value = '';
-        }
-
-        // ========== EVENT LISTENER ==========
-        // Generate key baru
-        generateKeyBtn.addEventListener('click', async () => {
-            const newKey = generateRoomKey();
-            roomKeyInput.value = newKey;
-            // Langsung join
-            await joinRoomBtn.click();
-        });
-
-        // Join room
-        joinRoomBtn.addEventListener('click', async () => {
-            let key = roomKeyInput.value.trim();
-            if (!key) {
-                alert('Masukkan key room.');
-                return;
+            // ========== SIMPAN METADATA KE LOCALSTORAGE (HOST) ==========
+            function saveMetadataToLocalStorage() {
+                if (isHost && currentRoomKey) {
+                    localStorage.setItem(`room_${currentRoomKey}_metadata`, JSON.stringify(fileMetadata));
+                }
             }
 
-            roomStatus.innerHTML = '<span class="loading"></span> Menyambung ke Firebase...';
-            try {
-                const roomData = await getOrCreateRoom(key);
-                subscribeToRoom(key);
-            } catch (err) {
-                console.error(err);
-                roomStatus.innerHTML = '❌ Gagal mengakses room. Cek Firebase Security Rules.';
+            function loadMetadataFromLocalStorage() {
+                if (currentRoomKey) {
+                    const stored = localStorage.getItem(`room_${currentRoomKey}_metadata`);
+                    if (stored) {
+                        try {
+                            fileMetadata = JSON.parse(stored);
+                        } catch (e) {
+                            fileMetadata = [];
+                        }
+                    } else {
+                        fileMetadata = [];
+                    }
+                }
             }
-        });
 
-        // Copy key
-        copyKeyBtn.addEventListener('click', () => {
-            if (currentRoomKey) {
-                navigator.clipboard.writeText(currentRoomKey).then(() => {
-                    alert(`Key "${currentRoomKey}" disalin!`);
-                }).catch(() => {
-                    alert('Salin manual: ' + currentRoomKey);
+            // ========== HOST: BROADCAST KE SEMUA GUEST ==========
+            function broadcastToGuests(message) {
+                connections.forEach(conn => {
+                    if (conn.open) {
+                        conn.send(message);
+                    }
                 });
-            } else {
-                alert('Belum ada room aktif.');
             }
-        });
 
-        // Upload file
-        roomFileInput.addEventListener('change', (e) => {
-            uploadFilesToRoom(e.target.files);
-        });
+            // ========== INIT PEER SEBAGAI HOST ==========
+            async function initHost(roomKey) {
+                isHost = true;
+                roleBadge.innerHTML = '👑 HOST';
+                roleBadge.style.background = '#ffc107';
+                roleBadge.style.color = '#000';
 
-        // ========== INISIALISASI ==========
-        // Generate key awal dan join
-        (async () => {
-            const initialKey = generateRoomKey();
-            roomKeyInput.value = initialKey;
-            await joinRoomBtn.click();
+                // Load metadata dari localStorage
+                loadMetadataFromLocalStorage();
+                renderFileList();
+
+                // Buat Peer dengan ID = roomKey + '-host'
+                const peerId = `${roomKey}-host`;
+                peer = new Peer(peerId, {
+                    host: PEER_SERVER_HOST,
+                    port: PEER_SERVER_PORT,
+                    path: PEER_SERVER_PATH,
+                    debug: PEER_DEBUG
+                });
+
+                peer.on('open', (id) => {
+                    peerIdDisplay.textContent = `Peer ID: ${id}`;
+                    roomStatus.innerHTML = '✅ Host siap. Guest bisa join dengan key yang sama.';
+                });
+
+                peer.on('connection', (conn) => {
+                    connections.push(conn);
+                    console.log('Guest connected:', conn.peer);
+                    
+                    conn.on('open', () => {
+                        // Kirim daftar file ke guest yang baru join
+                        conn.send({
+                            type: 'file-list',
+                            files: fileMetadata
+                        });
+                    });
+
+                    conn.on('data', async (data) => {
+                        if (data.type === 'upload-chunk') {
+                            // Terima chunk file dari guest
+                            const { fileId, chunkIndex, totalChunks, chunk, fileName, fileSize, fileType } = data;
+                            if (!fileChunks[fileId]) {
+                                fileChunks[fileId] = {
+                                    chunks: [],
+                                    received: 0,
+                                    totalChunks: totalChunks,
+                                    name: fileName,
+                                    size: fileSize,
+                                    type: fileType
+                                };
+                            }
+                            // Konversi chunk dari base64 ke blob
+                            const binary = atob(chunk);
+                            const array = new Uint8Array(binary.length);
+                            for (let i = 0; i < binary.length; i++) {
+                                array[i] = binary.charCodeAt(i);
+                            }
+                            fileChunks[fileId].chunks[chunkIndex] = array;
+                            fileChunks[fileId].received++;
+
+                            if (fileChunks[fileId].received === totalChunks) {
+                                // Semua chunk terkumpul, gabungkan
+                                const allChunks = fileChunks[fileId].chunks;
+                                let totalLength = 0;
+                                allChunks.forEach(chunk => { totalLength += chunk.length; });
+                                const fullArray = new Uint8Array(totalLength);
+                                let offset = 0;
+                                allChunks.forEach(chunk => {
+                                    fullArray.set(chunk, offset);
+                                    offset += chunk.length;
+                                });
+                                const blob = new Blob([fullArray], { type: fileType });
+                                
+                                // Simpan ke IndexedDB
+                                await saveFileToDB(fileId, blob);
+                                
+                                // Tambah metadata
+                                const newFile = {
+                                    id: fileId,
+                                    name: fileName,
+                                    size: fileSize,
+                                    type: fileType,
+                                    uploadedAt: Date.now()
+                                };
+                                fileMetadata.push(newFile);
+                                saveMetadataToLocalStorage();
+                                renderFileList();
+                                
+                                // Broadcast ke semua guest bahwa ada file baru
+                                broadcastToGuests({
+                                    type: 'file-added',
+                                    file: newFile
+                                });
+                                
+                                // Bersihkan
+                                delete fileChunks[fileId];
+                            }
+                        }
+                    });
+
+                    conn.on('close', () => {
+                        connections = connections.filter(c => c.peer !== conn.peer);
+                    });
+                });
+
+                peer.on('error', (err) => {
+                    console.error('Peer error:', err);
+                    if (err.type === 'unavailable-id') {
+                        roomStatus.innerHTML = '❌ Key sudah digunakan host lain. Gunakan key lain atau join sebagai guest.';
+                    } else {
+                        roomStatus.innerHTML = `❌ Error: ${err.message}`;
+                    }
+                });
+            }
+
+            // ========== INIT PEER SEBAGAI GUEST ==========
+            async function initGuest(roomKey) {
+                isHost = false;
+                roleBadge.innerHTML = '👤 GUEST';
+                roleBadge.style.background = '#e2e8f0';
+                roleBadge.style.color = '#1e293b';
+                fileMetadata = [];
+                renderFileList();
+
+                // Buat Peer tanpa ID khusus
+                peer = new Peer({
+                    host: PEER_SERVER_HOST,
+                    port: PEER_SERVER_PORT,
+                    path: PEER_SERVER_PATH,
+                    debug: PEER_DEBUG
+                });
+
+                peer.on('open', (id) => {
+                    peerIdDisplay.textContent = `Peer ID: ${id}`;
+                    roomStatus.innerHTML = '✅ Terhubung ke PeerJS. Menghubungi host...';
+                    
+                    // Konek ke host
+                    const hostPeerId = `${roomKey}-host`;
+                    const conn = peer.connect(hostPeerId);
+                    hostConnection = conn;
+
+                    conn.on('open', () => {
+                        roomStatus.innerHTML = '✅ Terhubung ke host.';
+                    });
+
+                    conn.on('data', (data) => {
+                        if (data.type === 'file-list') {
+                            fileMetadata = data.files || [];
+                            renderFileList();
+                        } else if (data.type === 'file-added') {
+                            fileMetadata.push(data.file);
+                            renderFileList();
+                        } else if (data.type === 'file-deleted') {
+                            fileMetadata = fileMetadata.filter(f => f.id !== data.fileId);
+                            renderFileList();
+                        } else if (data.type === 'download-response') {
+                            // Terima file dari host
+                            const { fileId, chunkIndex, totalChunks, chunk, fileName, fileType } = data;
+                            if (!fileChunks[fileId]) {
+                                fileChunks[fileId] = {
+                                    chunks: [],
+                                    received: 0,
+                                    totalChunks: totalChunks,
+                                    name: fileName,
+                                    type: fileType
+                                };
+                            }
+                            const binary = atob(chunk);
+                            const array = new Uint8Array(binary.length);
+                            for (let i = 0; i < binary.length; i++) {
+                                array[i] = binary.charCodeAt(i);
+                            }
+                            fileChunks[fileId].chunks[chunkIndex] = array;
+                            fileChunks[fileId].received++;
+
+                            if (fileChunks[fileId].received === totalChunks) {
+                                // Gabungkan dan download
+                                const allChunks = fileChunks[fileId].chunks;
+                                let totalLength = 0;
+                                allChunks.forEach(chunk => { totalLength += chunk.length; });
+                                const fullArray = new Uint8Array(totalLength);
+                                let offset = 0;
+                                allChunks.forEach(chunk => {
+                                    fullArray.set(chunk, offset);
+                                    offset += chunk.length;
+                                });
+                                const blob = new Blob([fullArray], { type: fileType });
+                                const url = URL.createObjectURL(blob);
+                                const a = document.createElement('a');
+                                a.href = url;
+                                a.download = fileName;
+                                a.click();
+                                URL.revokeObjectURL(url);
+                                uploadStatus.innerText = `✅ Download selesai: ${fileName}`;
+                                setTimeout(() => { uploadStatus.innerText = ''; }, 3000);
+                                delete fileChunks[fileId];
+                            }
+                        }
+                    });
+
+                    conn.on('close', () => {
+                        roomStatus.innerHTML = '❌ Koneksi ke host terputus.';
+                    });
+
+                    conn.on('error', (err) => {
+                        console.error(err);
+                        roomStatus.innerHTML = `❌ Gagal konek ke host: ${err.message}`;
+                    });
+                });
+
+                peer.on('error', (err) => {
+                    console.error(err);
+                    roomStatus.innerHTML = `❌ Peer error: ${err.message}`;
+                });
+            }
+
+            // ========== UPLOAD FILE (GUEST ATAU HOST) ==========
+            async function uploadFiles(files) {
+                if (!currentRoomKey) {
+                    alert('Join room terlebih dahulu.');
+                    return;
+                }
+                if (!files || files.length === 0) return;
+
+                if (isHost) {
+                    // Host upload langsung simpan ke IndexedDB
+                    for (let i = 0; i < files.length; i++) {
+                        const file = files[i];
+                        const fileId = `${Date.now()}-${Math.random().toString(36).substring(2)}-${file.name}`;
+                        await saveFileToDB(fileId, file);
+                        fileMetadata.push({
+                            id: fileId,
+                            name: file.name,
+                            size: file.size,
+                            type: file.type,
+                            uploadedAt: Date.now()
+                        });
+                        saveMetadataToLocalStorage();
+                        renderFileList();
+                        // Broadcast ke guest
+                        broadcastToGuests({
+                            type: 'file-added',
+                            file: {
+                                id: fileId,
+                                name: file.name,
+                                size: file.size,
+                                type: file.type,
+                                uploadedAt: Date.now()
+                            }
+                        });
+                        uploadStatus.innerText = `✅ Upload ${file.name} berhasil`;
+                    }
+                    setTimeout(() => { uploadStatus.innerText = ''; }, 3000);
+                } else {
+                    // Guest upload: kirim file ke host via chunk
+                    for (let i = 0; i < files.length; i++) {
+                        const file = files[i];
+                        const fileId = `${Date.now()}-${Math.random().toString(36).substring(2)}-${file.name}`;
+                        const chunkSize = 16 * 1024; // 16KB
+                        const totalChunks = Math.ceil(file.size / chunkSize);
+                        let chunkIndex = 0;
+
+                        uploadStatus.innerText = `⏳ Mengupload ${file.name} (0/${totalChunks})...`;
+
+                        for (let start = 0; start < file.size; start += chunkSize) {
+                            const chunk = file.slice(start, start + chunkSize);
+                            const arrayBuffer = await chunk.arrayBuffer();
+                            const uint8Array = new Uint8Array(arrayBuffer);
+                            let binary = '';
+                            for (let i = 0; i < uint8Array.length; i++) {
+                                binary += String.fromCharCode(uint8Array[i]);
+                            }
+                            const base64 = btoa(binary);
+
+                            hostConnection.send({
+                                type: 'upload-chunk',
+                                fileId: fileId,
+                                chunkIndex: chunkIndex,
+                                totalChunks: totalChunks,
+                                chunk: base64,
+                                fileName: file.name,
+                                fileSize: file.size,
+                                fileType: file.type
+                            });
+
+                            chunkIndex++;
+                            uploadStatus.innerText = `⏳ Mengupload ${file.name} (${chunkIndex}/${totalChunks})...`;
+                        }
+                        uploadStatus.innerText = `✅ Upload ${file.name} selesai, menunggu host memproses...`;
+                    }
+                }
+            }
+
+            // ========== EVENT LISTENER ==========
+            generateKeyBtn.addEventListener('click', () => {
+                const newKey = generateRoomKey();
+                roomKeyInput.value = newKey;
+                joinRoomBtn.click();
+            });
+
+            joinRoomBtn.addEventListener('click', async () => {
+                let key = roomKeyInput.value.trim();
+                if (!key) {
+                    alert('Masukkan key room.');
+                    return;
+                }
+
+                // Bersihkan peer lama
+                if (peer) {
+                    peer.destroy();
+                    peer = null;
+                }
+                connections = [];
+                hostConnection = null;
+                fileChunks = {};
+
+                currentRoomKey = key;
+                currentRoomKeyBadge.textContent = key;
+
+                roomStatus.innerHTML = '<span class="loading"></span> Mencoba sebagai host...';
+
+                // Coba sebagai host dulu
+                try {
+                    await initHost(key);
+                } catch (e) {
+                    // Jika gagal karena ID sudah dipakai, otomatis jadi guest
+                    if (e.type === 'unavailable-id') {
+                        roomStatus.innerHTML = '⚠️ Host sudah ada, join sebagai guest...';
+                        await initGuest(key);
+                    } else {
+                        roomStatus.innerHTML = `❌ Error: ${e.message}`;
+                    }
+                }
+            });
+
+            copyKeyBtn.addEventListener('click', () => {
+                if (currentRoomKey) {
+                    navigator.clipboard.writeText(currentRoomKey);
+                    alert(`Key "${currentRoomKey}" disalin!`);
+                } else {
+                    alert('Belum ada room aktif.');
+                }
+            });
+
+            roomFileInput.addEventListener('change', (e) => {
+                uploadFiles(e.target.files);
+                roomFileInput.value = ''; // Reset input
+            });
+
+            // ========== INISIALISASI AWAL ==========
+            (async () => {
+                // Generate key awal
+                const initialKey = generateRoomKey();
+                roomKeyInput.value = initialKey;
+                await joinRoomBtn.click();
+            })();
         })();
-
     </script>
 </body>
 </html>
