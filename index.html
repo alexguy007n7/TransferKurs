@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TransferPile · Unlimited</title>
+    <title>TransferPile · Room + Unlimited</title>
     <style>
         * {
             margin: 0;
@@ -22,11 +22,11 @@
         }
 
         .app {
-            max-width: 1100px;
+            max-width: 1200px;
             width: 100%;
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.05);
+            border-radius: 24px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.04);
             padding: 32px;
         }
 
@@ -34,7 +34,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 32px;
+            margin-bottom: 28px;
             flex-wrap: wrap;
             gap: 16px;
         }
@@ -53,6 +53,37 @@
             border-radius: 40px;
             font-size: 14px;
             font-weight: 600;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 8px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 15px;
+            color: #4a5c6a;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+
+        .tab.active {
+            background: #0a1e2f;
+            color: white;
+        }
+
+        .panel {
+            display: none;
+        }
+
+        .panel.active {
+            display: block;
         }
 
         .upload-section {
@@ -103,6 +134,11 @@
             transform: translateY(-1px);
         }
 
+        .btn-small {
+            padding: 8px 18px;
+            font-size: 14px;
+        }
+
         .btn:hover {
             background: #f1f5f9;
         }
@@ -125,7 +161,7 @@
             border-radius: 20px;
             padding: 20px;
             margin: 24px 0;
-            max-height: 340px;
+            max-height: 360px;
             overflow-y: auto;
         }
 
@@ -161,21 +197,65 @@
             color: #5e6f7e;
         }
 
-        .btn-delete {
+        .btn-delete, .btn-download {
             background: none;
             border: 1px solid #e2e8f0;
             padding: 8px 16px;
             border-radius: 30px;
             font-size: 13px;
             font-weight: 500;
-            color: #b22234;
             cursor: pointer;
             transition: 0.1s;
         }
 
+        .btn-delete {
+            color: #b22234;
+        }
         .btn-delete:hover {
             background: #fee2e2;
             border-color: #b91c1c;
+        }
+
+        .btn-download {
+            color: #0a1e2f;
+        }
+        .btn-download:hover {
+            background: #e6f0fa;
+            border-color: #3b82f6;
+        }
+
+        .room-control {
+            background: #f1f5f9;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .room-input {
+            flex: 1;
+            min-width: 200px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .room-input label {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .room-input input {
+            padding: 10px 16px;
+            border: 1px solid #cbd5e1;
+            border-radius: 30px;
+            font-size: 15px;
+            flex: 1;
+            min-width: 160px;
         }
 
         .device-section {
@@ -251,57 +331,86 @@
 </head>
 <body>
     <div class="app">
-        <!-- HEADER MINIMAL -->
+        <!-- HEADER -->
         <div class="header">
-            <span class="title">∞ TransferPile</span>
-            <span class="badge">UNLIMITED · NO LIMITS</span>
+            <span class="title">∞ TransferPile · Room</span>
+            <span class="badge">UNLIMITED · KEY ROOM</span>
         </div>
 
-        <!-- UPLOAD AREA – TIDAK ADA BATASAN -->
-        <div class="upload-section" id="dropZone">
-            <div class="file-input-area">
-                <label for="fileInput" class="btn">
-                    <span>📁</span> Pilih File (tanpa batas)
-                </label>
-                <input type="file" id="fileInput" multiple class="hidden">
-                <span style="color: #5e6f7e; font-size: 15px;">atau seret ke sini</span>
+        <!-- TAB NAVIGASI: MY UPLOADS vs ROOM INBOX -->
+        <div class="tabs">
+            <div class="tab active" id="tabMyUploads">📤 My Uploads</div>
+            <div class="tab" id="tabRoomInbox">📥 Room Inbox</div>
+        </div>
+
+        <!-- ========== PANEL 1: MY UPLOADS (Upload & Transfer) ========= -->
+        <div id="panelMyUploads" class="panel active">
+            <!-- UPLOAD AREA -->
+            <div class="upload-section" id="dropZone">
+                <div class="file-input-area">
+                    <label for="fileInput" class="btn">
+                        <span>📁</span> Pilih File (tanpa batas)
+                    </label>
+                    <input type="file" id="fileInput" multiple class="hidden">
+                    <span style="color: #5e6f7e; font-size: 15px;">atau seret ke sini</span>
+                </div>
+                <div class="storage-info" id="storageInfo">
+                    <span>💾 Penyimpanan: 0 B / ∞</span>
+                    <span>📄 File: 0</span>
+                </div>
             </div>
-            <div class="storage-info" id="storageInfo">
-                <span>💾 Penyimpanan: 0 B / ∞</span>
-                <span>📄 File: 0</span>
+
+            <!-- DAFTAR FILE SAYA (UPLOADED) -->
+            <div class="file-list" id="fileListContainer">
+                <div style="color: #64748b; text-align: center; padding: 30px;" id="emptyMessage">
+                    ⚡ Belum ada file. Upload tak terbatas dimulai.
+                </div>
+            </div>
+
+            <!-- PILIH PERANGKAT TUJUAN -->
+            <div class="device-section">
+                <div class="device-title">🎯 Kirim ke perangkat (pilih satu / banyak)</div>
+                <div class="device-grid" id="deviceSelector">
+                    <div class="device-chip active" data-device="pc1">🖥️ PC1</div>
+                    <div class="device-chip" data-device="router">📶 Router</div>
+                    <div class="device-chip" data-device="hp">📱 Android</div>
+                    <div class="device-chip" data-device="pc2">💻 PC2</div>
+                    <div class="device-chip" data-device="all">🌐 Semua</div>
+                </div>
+            </div>
+
+            <!-- TRANSFER -->
+            <div class="transfer-area">
+                <button class="btn btn-primary" id="transferBtn">
+                    🚀 Transfer file
+                </button>
+                <span class="status" id="transferStatus">Siap – 0 file</span>
             </div>
         </div>
 
-        <!-- DAFTAR FILE -->
-        <div class="file-list" id="fileListContainer">
-            <div style="color: #64748b; text-align: center; padding: 30px;" id="emptyMessage">
-                ⚡ Belum ada file. Upload tak terbatas dimulai.
+        <!-- ========== PANEL 2: ROOM INBOX (Lihat & Download file orang) ========= -->
+        <div id="panelRoomInbox" class="panel">
+            <div class="room-control">
+                <div class="room-input">
+                    <label>🔑 Room Key:</label>
+                    <input type="text" id="roomKeyInput" placeholder="Contoh: rahasia123" value="default-room">
+                    <button class="btn btn-small" id="joinRoomBtn">🔄 Join / Refresh</button>
+                </div>
+                <span style="color: #4a5c6a; font-size: 14px;">File di room ini dikirim oleh orang lain</span>
+            </div>
+
+            <!-- DAFTAR FILE ROOM (INCOMING) -->
+            <div class="file-list" id="roomFileListContainer" style="margin-top: 0;">
+                <!-- Akan diisi oleh JS -->
+            </div>
+            <div style="margin-top: 12px; color: #5e6f7e; text-align: right; font-size: 13px;">
+                <span id="roomInfo">Menggunakan key: default-room</span>
             </div>
         </div>
 
-        <!-- PILIH PERANGKAT TUJUAN -->
-        <div class="device-section">
-            <div class="device-title">🎯 Kirim ke perangkat (pilih satu / banyak)</div>
-            <div class="device-grid" id="deviceSelector">
-                <div class="device-chip active" data-device="pc1">🖥️ PC1</div>
-                <div class="device-chip" data-device="router">📶 Router</div>
-                <div class="device-chip" data-device="hp">📱 Android</div>
-                <div class="device-chip" data-device="pc2">💻 PC2</div>
-                <div class="device-chip" data-device="all">🌐 Semua</div>
-            </div>
-        </div>
-
-        <!-- TRANSFER & STATUS -->
-        <div class="transfer-area">
-            <button class="btn btn-primary" id="transferBtn">
-                🚀 Transfer file
-            </button>
-            <span class="status" id="transferStatus">Siap – 0 file</span>
-        </div>
-
-        <!-- FOOTER PROTOKOL X (MINIMAL) -->
+        <!-- FOOTER -->
         <div class="footer">
-            ⚡ OXYX · PROTOKOL X · EKSEKUSI TANPA BATAS
+            ⚡ OXYX · PROTOKOL X · TANPA BATAS · KEY ROOM
         </div>
     </div>
 
@@ -309,21 +418,56 @@
         (function(){
             "use strict";
 
-            // === STATE GLOBAL ===
-            let uploadedFiles = [];       // semua file, tanpa batas
-            let selectedDevices = ['pc1']; // default
+            // ========== STATE ==========
+            // File yang diupload user sendiri (my uploads)
+            let uploadedFiles = []; 
 
-            // === ELEMEN DOM ===
+            // Simulasi file yang ada di berbagai room (key -> array of File)
+            let roomDatabase = {
+                "default-room": [
+                    createSampleFile("laporan_keuangan_q1.pdf", "application/pdf", 2.4 * 1024 * 1024),
+                    createSampleFile("foto_tim.jpg", "image/jpeg", 3.1 * 1024 * 1024),
+                    createSampleFile("presentasi_client.pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation", 8.7 * 1024 * 1024)
+                ],
+                "project-alpha": [
+                    createSampleFile("source_code_v2.zip", "application/zip", 22.1 * 1024 * 1024),
+                    createSampleFile("readme.md", "text/markdown", 1.2 * 1024 * 1024)
+                ],
+                "private-oxy": [
+                    createSampleFile("protokol_x_dokumentasi.pdf", "application/pdf", 5.6 * 1024 * 1024),
+                    createSampleFile("chip_schematic.png", "image/png", 12.3 * 1024 * 1024)
+                ]
+            };
+
+            // Room yang sedang aktif
+            let currentRoomKey = "default-room";
+
+            // ========== ELEMEN DOM ==========
+            // Tab
+            const tabMy = document.getElementById('tabMyUploads');
+            const tabRoom = document.getElementById('tabRoomInbox');
+            const panelMy = document.getElementById('panelMyUploads');
+            const panelRoom = document.getElementById('panelRoomInbox');
+
+            // My Uploads
             const fileInput = document.getElementById('fileInput');
             const dropZone = document.getElementById('dropZone');
             const fileListContainer = document.getElementById('fileListContainer');
-            const emptyMessage = document.getElementById('emptyMessage');
             const storageInfo = document.getElementById('storageInfo');
             const transferBtn = document.getElementById('transferBtn');
             const transferStatus = document.getElementById('transferStatus');
             const deviceChips = document.querySelectorAll('.device-chip');
 
-            // === UTILS: FORMAT BYTES (HINGGA YOTTABYTE) ===
+            // Room Inbox
+            const roomKeyInput = document.getElementById('roomKeyInput');
+            const joinRoomBtn = document.getElementById('joinRoomBtn');
+            const roomFileListContainer = document.getElementById('roomFileListContainer');
+            const roomInfo = document.getElementById('roomInfo');
+
+            // State perangkat
+            let selectedDevices = ['pc1']; // default
+
+            // ========== FUNGSI BANTU ==========
             function formatBytes(bytes) {
                 if (bytes === Infinity || bytes > 1e30) return '∞ TB';
                 if (bytes === 0) return '0 B';
@@ -332,27 +476,36 @@
                 return parseFloat((bytes / Math.pow(1024, i)).toFixed(1)) + ' ' + (sizes[i] || '∞');
             }
 
-            // === RENDER ULANG DAFTAR FILE DAN STORAGE ===
-            function renderFileList() {
+            // Membuat objek File tiruan (untuk simulasi room)
+            function createSampleFile(name, type, size) {
+                const file = new File([""], name, { type });
+                Object.defineProperty(file, 'size', { value: size });
+                return file;
+            }
+
+            // Escape HTML
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            // ========== RENDER MY UPLOADS ==========
+            function renderMyFiles() {
                 const totalSize = uploadedFiles.reduce((acc, f) => acc + (f.size || 0), 0);
                 const fileCount = uploadedFiles.length;
 
-                // Update info storage
                 storageInfo.innerHTML = `
                     <span>💾 Penyimpanan: ${formatBytes(totalSize)} / ∞</span>
                     <span>📄 File: ${fileCount}</span>
                 `;
-
-                // Update status transfer
                 transferStatus.innerText = fileCount === 0 ? 'Siap – 0 file' : `Siap – ${fileCount} file (${formatBytes(totalSize)})`;
 
-                // Kosongkan container
                 if (fileCount === 0) {
                     fileListContainer.innerHTML = `<div style="color: #64748b; text-align: center; padding: 30px;">⚡ Belum ada file. Upload tak terbatas dimulai.</div>`;
                     return;
                 }
 
-                // Bangun daftar file
                 let html = '';
                 uploadedFiles.forEach((file, idx) => {
                     const name = file.name || 'file';
@@ -370,43 +523,98 @@
                 });
                 fileListContainer.innerHTML = html;
 
-                // Event listener untuk tombol hapus
                 fileListContainer.querySelectorAll('.btn-delete').forEach(btn => {
                     btn.addEventListener('click', function(e) {
                         const index = parseInt(this.dataset.index);
                         if (!isNaN(index) && index >= 0 && index < uploadedFiles.length) {
                             uploadedFiles.splice(index, 1);
-                            renderFileList();
+                            renderMyFiles();
                         }
                         e.stopPropagation();
                     });
                 });
             }
 
-            // Escape HTML sederhana untuk keamanan
-            function escapeHtml(text) {
-                const div = document.createElement('div');
-                div.textContent = text;
-                return div.innerHTML;
+            // ========== RENDER ROOM INBOX ==========
+            function renderRoomFiles(roomKey) {
+                const files = roomDatabase[roomKey] || [];
+                roomInfo.innerText = `Menggunakan key: ${roomKey} (${files.length} file)`;
+
+                if (files.length === 0) {
+                    roomFileListContainer.innerHTML = `<div style="color: #64748b; text-align: center; padding: 40px;">📭 Tidak ada file di room ini.</div>`;
+                    return;
+                }
+
+                let html = '';
+                files.forEach((file, idx) => {
+                    const name = file.name || 'file';
+                    const size = formatBytes(file.size || 0);
+                    const type = file.type || 'application/octet-stream';
+                    html += `
+                        <div class="file-item" data-roomkey="${roomKey}" data-fileindex="${idx}">
+                            <div class="file-detail">
+                                <span class="file-name">${escapeHtml(name)}</span>
+                                <span class="file-meta">${size} · ${escapeHtml(type.substring(0, 30))}</span>
+                                <span style="font-size:12px; color:#3b82f6;">dikirim oleh: anonymous</span>
+                            </div>
+                            <button class="btn-download" data-roomkey="${roomKey}" data-fileindex="${idx}">⬇️ Download</button>
+                        </div>
+                    `;
+                });
+                roomFileListContainer.innerHTML = html;
+
+                // Tombol download
+                roomFileListContainer.querySelectorAll('.btn-download').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        const rKey = this.dataset.roomkey;
+                        const fIdx = parseInt(this.dataset.fileindex);
+                        const file = roomDatabase[rKey]?.[fIdx];
+                        if (file) {
+                            // Buat URL objek dan trigger download
+                            const blob = new Blob([file], { type: file.type });
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = file.name;
+                            a.click();
+                            URL.revokeObjectURL(url);
+                        }
+                        e.stopPropagation();
+                    });
+                });
             }
 
-            // === HANDLE FILE UPLOAD (TAMBAH KE ARRAY) ===
+            // ========== UPLOAD HANDLER ==========
             function addFiles(files) {
                 if (!files || files.length === 0) return;
                 for (let i = 0; i < files.length; i++) {
                     uploadedFiles.push(files[i]);
                 }
-                renderFileList();
-                // Reset input
+                renderMyFiles();
                 fileInput.value = '';
             }
 
-            // === EVENT: TOMBOL PILIH FILE ===
-            fileInput.addEventListener('change', function(e) {
-                addFiles(e.target.files);
+            // ========== EVENT LISTENER ==========
+            // Tab switching
+            tabMy.addEventListener('click', () => {
+                tabMy.classList.add('active');
+                tabRoom.classList.remove('active');
+                panelMy.classList.add('active');
+                panelRoom.classList.remove('active');
+            });
+            tabRoom.addEventListener('click', () => {
+                tabRoom.classList.add('active');
+                tabMy.classList.remove('active');
+                panelRoom.classList.add('active');
+                panelMy.classList.remove('active');
+                // render ulang room dengan key yg sedang aktif
+                renderRoomFiles(currentRoomKey);
             });
 
-            // === DRAG & DROP (TANPA BATAS) ===
+            // File input
+            fileInput.addEventListener('change', (e) => addFiles(e.target.files));
+
+            // Drag & drop
             dropZone.addEventListener('dragover', (e) => {
                 e.preventDefault();
                 dropZone.style.background = '#e6f0fa';
@@ -421,7 +629,6 @@
                 e.preventDefault();
                 dropZone.style.background = '#f9fcff';
                 dropZone.style.borderColor = '#cbd5e1';
-
                 const items = e.dataTransfer.items;
                 if (items) {
                     const files = [];
@@ -438,19 +645,15 @@
                 }
             });
 
-            // === DEVICE SELECTOR – TOGGLE DENGAN LOGIKA SEDERHANA ===
+            // Device selector
             deviceChips.forEach(chip => {
                 chip.addEventListener('click', function() {
                     const device = this.dataset.device;
-
                     if (device === 'all') {
-                        // Aktifkan semua chip, nonaktifkan 'all'? Sebaiknya all tetap aktif, tapi kita beri logika: semua aktif, all aktif
                         deviceChips.forEach(c => c.classList.add('active'));
                         selectedDevices = ['pc1', 'router', 'hp', 'pc2', 'all'];
                     } else {
-                        // Toggle individual
                         if (this.classList.contains('active')) {
-                            // Minimal satu perangkat harus aktif
                             if (selectedDevices.length > 1) {
                                 this.classList.remove('active');
                                 selectedDevices = selectedDevices.filter(d => d !== device);
@@ -459,16 +662,12 @@
                             this.classList.add('active');
                             selectedDevices.push(device);
                         }
-
-                        // Hapus 'all' dari state dan UI jika ada yang individual aktif
                         const allChip = document.querySelector('.device-chip[data-device="all"]');
                         if (allChip.classList.contains('active')) {
                             allChip.classList.remove('active');
                             selectedDevices = selectedDevices.filter(d => d !== 'all');
                         }
                     }
-
-                    // Pastikan tidak kosong (fallback)
                     if (selectedDevices.length === 0) {
                         document.querySelector('.device-chip[data-device="pc1"]').classList.add('active');
                         selectedDevices = ['pc1'];
@@ -476,45 +675,46 @@
                 });
             });
 
-            // === TRANSFER SIMULASI (SEMUA BERFUNGSI) ===
+            // Transfer button
             transferBtn.addEventListener('click', function() {
                 if (uploadedFiles.length === 0) {
                     transferStatus.innerText = '⚠️ Tidak ada file untuk dikirim';
                     return;
                 }
-
                 const activeDevices = [];
                 document.querySelectorAll('.device-chip.active').forEach(chip => {
                     activeDevices.push(chip.dataset.device);
                 });
-
                 const totalFiles = uploadedFiles.length;
                 const totalSize = uploadedFiles.reduce((acc, f) => acc + (f.size || 0), 0);
                 const deviceNames = activeDevices.map(d => {
                     const map = { pc1:'PC1', router:'Router', hp:'Android', pc2:'PC2', all:'Semua' };
                     return map[d] || d;
                 }).join(', ');
-
                 transferStatus.innerText = `✅ Transfer ${totalFiles} file (${formatBytes(totalSize)}) ke ${deviceNames} — BERHASIL`;
-                
-                // Notifikasi visual (tanpa alert)
                 setTimeout(() => {
                     transferStatus.innerText = `Siap – ${totalFiles} file`;
-                }, 3500);
+                }, 3000);
             });
 
-            // === INIT: TAMBAHKAN SAMPLE FILE (DEMO, BISA DIHAPUS) ===
-            // Hanya sebagai contoh, tidak membatasi. User tetap bebas hapus/upload.
-            setTimeout(() => {
-                if (uploadedFiles.length === 0) {
-                    const sample1 = new File(["dummy"], "sample_video_4k.mp4", { type: "video/mp4" });
-                    Object.defineProperty(sample1, 'size', { value: 1.2 * 1024 * 1024 * 1024 }); // 1.2GB
-                    const sample2 = new File(["backup"], "server_backup_2026.zip", { type: "application/zip" });
-                    Object.defineProperty(sample2, 'size', { value: 8.4 * 1024 * 1024 * 1024 }); // 8.4GB
-                    uploadedFiles.push(sample1, sample2);
-                    renderFileList();
+            // ROOM: Join / Refresh
+            joinRoomBtn.addEventListener('click', function() {
+                let key = roomKeyInput.value.trim();
+                if (key === '') key = 'default-room';
+                currentRoomKey = key;
+                // Jika room belum ada di database, buat array kosong
+                if (!roomDatabase[currentRoomKey]) {
+                    roomDatabase[currentRoomKey] = [];
                 }
-            }, 50);
+                renderRoomFiles(currentRoomKey);
+            });
+
+            // Inisialisasi room dengan key default
+            roomKeyInput.value = currentRoomKey;
+            renderRoomFiles(currentRoomKey);
+
+            // My Uploads: tidak ada dummy file, array kosong
+            renderMyFiles();
         })();
     </script>
 </body>
