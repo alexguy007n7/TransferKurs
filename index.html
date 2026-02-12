@@ -3,15 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>📁 Share+QR · Chunk · Timer</title>
+    <title>📁 GoFile · Direct DL + QR</title>
+    <!-- html5-qrcode untuk scan QR -->
     <script src="https://unpkg.com/html5-qrcode" minified></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body {
             background: linear-gradient(145deg, #f6f9fc 0%, #edf1f7 100%);
             min-height: 100vh;
@@ -25,7 +21,6 @@
             width: 100%;
             background: rgba(255,255,255,0.75);
             backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
             border-radius: 32px;
             padding: 24px;
             border: 1px solid rgba(255,255,255,0.5);
@@ -58,13 +53,6 @@
             background: #0b2b4a; border: none; color: white;
             box-shadow: 0 8px 18px rgba(11,43,74,0.2);
         }
-        .expiry-selector {
-            display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-left: auto;
-        }
-        select, input[type="number"] {
-            padding: 10px 18px; border-radius: 40px; border: 1.5px solid #d4e0e9;
-            font-size: 14px; background: white;
-        }
         .file-list {
             background: white; border-radius: 24px; padding: 20px;
             border: 1px solid rgba(0,0,0,0.04);
@@ -80,9 +68,8 @@
         .file-info { flex: 2; min-width: 200px; }
         .file-name { font-weight: 700; color: #0a1c2e; word-break: break-word; }
         .file-meta { display: flex; flex-wrap: wrap; gap: 12px; font-size: 13px; }
-        .countdown {
-            font-weight: 700; color: #b4511b; background: #ffeed9;
-            padding: 4px 14px; border-radius: 40px; font-size: 13px;
+        .badge-size {
+            background: #e6edf4; padding: 4px 14px; border-radius: 40px;
         }
         .btn-sm {
             padding: 8px 16px; font-size: 13px; border-radius: 40px;
@@ -90,7 +77,7 @@
         }
         .btn-delete { color: #b33a3a; border-color: #f3cdcd; }
         .progress-bar {
-            width: 100%; height: 6px; background: #e2e8f0; border-radius: 10px; margin-top: 8px;
+            width: 100%; height: 6px; background: #e2e8f0; border-radius: 10px; margin-top: 12px;
             overflow: hidden;
         }
         .progress-fill {
@@ -117,43 +104,36 @@
             margin-top: 20px; background: white; border: none; padding: 12px 30px;
             border-radius: 50px; font-weight: 600; cursor: pointer;
         }
-        .warning {
-            background: #fff3cd; color: #856404; padding: 12px; border-radius: 12px;
-            margin: 12px 0; font-size: 14px; display: flex; align-items: center; gap: 8px;
+        .expiry-selector {
+            display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+            margin-top: 16px;
         }
         .footer { margin-top: 32px; text-align: center; color: #4e6a7c; font-size: 13px; }
+        .note {
+            font-size: 13px; color: #5e6f7e; background: #f1f5f9; padding: 8px 16px; border-radius: 40px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📁 Share+QR · Chunked</h1>
+        <h1>📁 GoFile · Upload & QR</h1>
         <div class="sub">
-            <span>🔒 File di browser ini. QR hanya berlaku di perangkat yang sama.<br>⏰ Waktu expired otomatis (format jam:menit:detik)</span>
+            <span>⚡ Upload ke GoFile.io (gratis, max 4GB). Link langsung & QR.</span>
             <button id="scanQrBtn" class="btn-scan">📷 Scan QR</button>
         </div>
 
+        <!-- UPLOAD CARD -->
         <div class="upload-card">
             <div class="area-upload">
                 <label for="fileInput" class="btn btn-primary">
-                    📁 Pilih File
+                    📁 Pilih File (max 4GB)
                 </label>
-                <input type="file" id="fileInput" multiple hidden>
-
-                <div class="expiry-selector">
-                    <label>⏱️ Expired:</label>
-                    <select id="expirySelect">
-                        <option value="5">5 menit</option>
-                        <option value="30">30 menit</option>
-                        <option value="60">1 jam</option>
-                        <option value="360">6 jam</option>
-                        <option value="1440">1 hari</option>
-                        <option value="10080">7 hari</option>
-                        <option value="0">Custom</option>
-                    </select>
-                    <input type="number" id="customExpiry" placeholder="detik" min="1" style="width:90px; display:none;">
-                </div>
+                <input type="file" id="fileInput" hidden>
+                <span class="note">File dikirim ke server GoFile</span>
             </div>
-            <div id="uploadProgress" style="margin-top: 16px; display: none;">
+            
+            <!-- Progress bar (muncul saat upload) -->
+            <div id="uploadProgress" style="display: none;">
                 <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
                     <span id="uploadStatus">⏳ Mengupload...</span>
                     <span id="uploadPercent">0%</span>
@@ -162,27 +142,43 @@
                     <div id="uploadProgressFill" class="progress-fill" style="width:0%"></div>
                 </div>
             </div>
+
+            <!-- Expired selector -->
+            <div class="expiry-selector">
+                <label style="font-weight:600;">⏱️ Hapus dari daftar setelah:</label>
+                <select id="expirySelect">
+                    <option value="5">5 menit</option>
+                    <option value="30">30 menit</option>
+                    <option value="60">1 jam</option>
+                    <option value="360">6 jam</option>
+                    <option value="1440">1 hari</option>
+                    <option value="10080">7 hari</option>
+                    <option value="0">Jangan hapus</option>
+                </select>
+            </div>
+
             <div id="uploadMessage" style="margin-top: 16px; color: #2e7eb0;"></div>
         </div>
 
+        <!-- DAFTAR FILE -->
         <div class="file-list">
             <div class="file-header">
-                <h3>📋 File tersimpan</h3>
-                <span id="totalSize" style="background:#e9f2f9; padding:6px 16px; border-radius:30px;">0 B</span>
+                <h3>📋 File terupload</h3>
+                <span id="fileCount" style="background:#e9f2f9; padding:6px 16px; border-radius:30px;">0 file</span>
             </div>
             <div id="fileListContainer">
                 <div class="empty-message" style="text-align:center; padding:40px; color:#657e94;">
-                    ⚡ Belum ada file. Upload sekarang!
+                    ⚡ Belum ada file. Pilih file untuk upload.
                 </div>
             </div>
         </div>
-        <div class="footer">⚡ OXYX · CHUNK 1MB · QR · COUNTDOWN JAM/MENIT/DETIK</div>
+        <div class="footer">⚡ OXYX · GOFILE.IO · QR · DIRECT DOWNLOAD</div>
     </div>
 
     <!-- MODAL QR -->
     <div id="qrModal" class="modal">
         <div class="modal-content">
-            <h3>🔗 QR Code Link</h3>
+            <h3>🔗 QR Code Download</h3>
             <div id="qrImageContainer" class="qr-image"></div>
             <p id="qrFileName" style="font-weight:600;"></p>
             <button id="closeQrModal" class="close-scanner" style="margin-top:12px;">Tutup</button>
@@ -199,296 +195,212 @@
         (function() {
             "use strict";
 
-            // ========== INDEXEDDB DENGAN CHUNKING ==========
-            const DB_NAME = 'ExpireFileChunkedV2';
-            const DB_VERSION = 2;
-            const STORE_FILES = 'files';
-            const STORE_CHUNKS = 'chunks';
+            // ========== GLOBAL ==========
+            // Endpoint upload GoFile.io
+            const GOFILE_UPLOAD_URL = 'https://store1.gofile.io/uploadFile';
 
-            let db = null;
+            // Storage key untuk localStorage
+            const STORAGE_KEY = 'GoFileUploads';
 
-            function openDB() {
-                return new Promise((resolve, reject) => {
-                    if (db) return resolve(db);
-                    const request = indexedDB.open(DB_NAME, DB_VERSION);
-                    request.onerror = () => reject(request.error);
-                    request.onsuccess = () => {
-                        db = request.result;
-                        resolve(db);
-                    };
-                    request.onupgradeneeded = (e) => {
-                        const db = e.target.result;
-                        if (!db.objectStoreNames.contains(STORE_FILES)) {
-                            const fileStore = db.createObjectStore(STORE_FILES, { keyPath: 'id' });
-                            fileStore.createIndex('expiresAt', 'expiresAt', { unique: false });
-                        }
-                        if (!db.objectStoreNames.contains(STORE_CHUNKS)) {
-                            const chunkStore = db.createObjectStore(STORE_CHUNKS, { keyPath: 'chunkId' });
-                            chunkStore.createIndex('fileId', 'fileId', { unique: false }); // penting untuk hapus cepat
-                        }
-                    };
-                });
-            }
+            // Daftar file (metadata)
+            let fileItems = [];
 
-            // Simpan file dengan chunking
-            async function saveFileChunked(file, expiresInSeconds) {
-                await openDB();
-                const fileId = Date.now() + '-' + Math.random().toString(36).substring(2) + '-' + file.name;
-                const expiresAt = Date.now() + (expiresInSeconds * 1000);
-                const chunkSize = 1024 * 1024; // 1MB
-                const totalChunks = Math.ceil(file.size / chunkSize);
-                let chunksSaved = 0;
-
-                return new Promise((resolve, reject) => {
-                    const transaction = db.transaction([STORE_FILES, STORE_CHUNKS], 'readwrite');
-                    const fileStore = transaction.objectStore(STORE_FILES);
-                    const chunkStore = transaction.objectStore(STORE_CHUNKS);
-
-                    const fileMetadata = {
-                        id: fileId,
-                        name: file.name,
-                        size: file.size,
-                        type: file.type,
-                        totalChunks: totalChunks,
-                        chunkSize: chunkSize,
-                        expiresAt: expiresAt,
-                        uploadedAt: Date.now()
-                    };
-                    fileStore.put(fileMetadata);
-
-                    let offset = 0;
-                    let chunkIndex = 0;
-                    const reader = new FileReader();
-
-                    reader.onload = function(e) {
-                        const arrayBuffer = e.target.result;
-                        const uint8Array = new Uint8Array(arrayBuffer);
-                        const chunkId = `${fileId}-chunk-${chunkIndex}`;
-                        chunkStore.put({
-                            chunkId: chunkId,
-                            fileId: fileId,
-                            index: chunkIndex,
-                            data: uint8Array
-                        });
-
-                        chunksSaved++;
-                        offset += chunkSize;
-                        chunkIndex++;
-
-                        if (offset < file.size) {
-                            readNextChunk();
-                        }
-
-                        if (window.onUploadProgress) {
-                            window.onUploadProgress({
-                                percent: Math.floor((chunksSaved / totalChunks) * 100),
-                                chunksSaved,
-                                totalChunks
-                            });
-                        }
-                    };
-
-                    reader.onerror = (err) => reject(err);
-
-                    function readNextChunk() {
-                        const slice = file.slice(offset, offset + chunkSize);
-                        reader.readAsArrayBuffer(slice);
-                    }
-
-                    readNextChunk();
-
-                    transaction.oncomplete = () => resolve(fileId);
-                    transaction.onerror = (e) => reject(e.target.error);
-                });
-            }
-
-            // Ambil file + gabung chunk
-            async function getFileChunked(fileId) {
-                await openDB();
-                return new Promise((resolve, reject) => {
-                    const transaction = db.transaction([STORE_FILES, STORE_CHUNKS], 'readonly');
-                    const fileStore = transaction.objectStore(STORE_FILES);
-                    const chunkStore = transaction.objectStore(STORE_CHUNKS);
-                    const index = chunkStore.index('fileId');
-
-                    const fileReq = fileStore.get(fileId);
-                    fileReq.onsuccess = async function(e) {
-                        const metadata = e.target.result;
-                        if (!metadata) { resolve(null); return; }
-
-                        const chunksReq = index.getAll(fileId);
-                        chunksReq.onsuccess = function(e) {
-                            const chunks = e.target.result;
-                            if (chunks.length !== metadata.totalChunks) {
-                                reject(new Error('Chunk tidak lengkap'));
-                                return;
-                            }
-                            // urutkan berdasarkan index
-                            chunks.sort((a,b) => a.index - b.index);
-                            const totalLength = chunks.reduce((acc, c) => acc + c.data.length, 0);
-                            const fullArray = new Uint8Array(totalLength);
-                            let offset = 0;
-                            for (let c of chunks) {
-                                fullArray.set(c.data, offset);
-                                offset += c.data.length;
-                            }
-                            const blob = new Blob([fullArray], { type: metadata.type });
-                            resolve({
-                                ...metadata,
-                                blob: blob
-                            });
-                        };
-                        chunksReq.onerror = (e) => reject(e.target.error);
-                    };
-                    fileReq.onerror = (e) => reject(e.target.error);
-                });
-            }
-
-            // Hapus file + semua chunk
-            async function deleteFileChunked(fileId) {
-                await openDB();
-                return new Promise((resolve, reject) => {
-                    const transaction = db.transaction([STORE_FILES, STORE_CHUNKS], 'readwrite');
-                    const fileStore = transaction.objectStore(STORE_FILES);
-                    const chunkStore = transaction.objectStore(STORE_CHUNKS);
-                    const index = chunkStore.index('fileId');
-
-                    fileStore.delete(fileId);
-
-                    const range = IDBKeyRange.only(fileId);
-                    const chunksReq = index.openCursor(range);
-                    chunksReq.onsuccess = function(e) {
-                        const cursor = e.target.result;
-                        if (cursor) {
-                            chunkStore.delete(cursor.primaryKey);
-                            cursor.continue();
-                        }
-                    };
-
-                    transaction.oncomplete = () => resolve();
-                    transaction.onerror = (e) => reject(e.target.error);
-                });
-            }
-
-            // Ambil semua metadata file
-            async function getAllFilesMetadata() {
-                await openDB();
-                return new Promise((resolve, reject) => {
-                    const transaction = db.transaction([STORE_FILES], 'readonly');
-                    const store = transaction.objectStore(STORE_FILES);
-                    const request = store.getAll();
-                    request.onsuccess = () => resolve(request.result || []);
-                    request.onerror = (e) => reject(e.target.error);
-                });
-            }
-
-            // Hapus file expired
-            async function deleteExpiredFiles() {
-                const files = await getAllFilesMetadata();
-                const now = Date.now();
-                for (let f of files) {
-                    if (f.expiresAt <= now) {
-                        await deleteFileChunked(f.id);
-                    }
-                }
-                return files.filter(f => f.expiresAt > now).length;
-            }
-
-            // ========== UTILS FORMAT WAKTU ==========
-            function formatTimeRemaining(ms) {
-                if (ms <= 0) return '⏹️ Expired';
-                const totalSeconds = Math.floor(ms / 1000);
-                const days = Math.floor(totalSeconds / 86400);
-                const hours = Math.floor((totalSeconds % 86400) / 3600);
-                const minutes = Math.floor((totalSeconds % 3600) / 60);
-                const seconds = totalSeconds % 60;
-
-                let parts = [];
-                if (days > 0) parts.push(`${days} hari`);
-                if (hours > 0) parts.push(`${hours} jam`);
-                if (minutes > 0) parts.push(`${minutes} menit`);
-                if (seconds > 0) parts.push(`${seconds} detik`);
-                return `⏳ ${parts.join(' ')}`;
-            }
-
-            // ========== UI & GLOBAL ==========
-            let refreshInterval = null;
+            // Elemen DOM
             const fileInput = document.getElementById('fileInput');
-            const expirySelect = document.getElementById('expirySelect');
-            const customExpiry = document.getElementById('customExpiry');
-            const uploadStatus = document.getElementById('uploadStatus');
-            const uploadMessage = document.getElementById('uploadMessage');
             const uploadProgress = document.getElementById('uploadProgress');
-            const uploadProgressFill = document.getElementById('uploadProgressFill');
+            const uploadStatus = document.getElementById('uploadStatus');
             const uploadPercent = document.getElementById('uploadPercent');
-            const totalSizeSpan = document.getElementById('totalSize');
+            const uploadProgressFill = document.getElementById('uploadProgressFill');
+            const uploadMessage = document.getElementById('uploadMessage');
             const fileListContainer = document.getElementById('fileListContainer');
+            const fileCountSpan = document.getElementById('fileCount');
+            const expirySelect = document.getElementById('expirySelect');
 
-            // QR Modal
+            // QR elements
             const qrModal = document.getElementById('qrModal');
             const qrImageContainer = document.getElementById('qrImageContainer');
             const qrFileName = document.getElementById('qrFileName');
             const closeQrModal = document.getElementById('closeQrModal');
 
-            // QR Scanner
+            // Scanner
             const scanQrBtn = document.getElementById('scanQrBtn');
             const scannerContainer = document.getElementById('qr-scanner-container');
             const closeScanner = document.getElementById('closeScanner');
             let html5QrCode = null;
 
-            // ========== UTILS ==========
+            // ========== LOAD / SAVE ==========
+            function loadFileList() {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                if (stored) {
+                    try {
+                        fileItems = JSON.parse(stored);
+                    } catch(e) {
+                        fileItems = [];
+                    }
+                } else {
+                    fileItems = [];
+                }
+                // Filter expired
+                const now = Date.now();
+                fileItems = fileItems.filter(f => !f.expiresAt || f.expiresAt > now);
+                saveFileList();
+                renderFileList();
+            }
+
+            function saveFileList() {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(fileItems));
+            }
+
+            // ========== FORMAT BYTES ==========
             function formatBytes(bytes) {
                 if (bytes === 0) return '0 B';
                 const sizes = ['B', 'KB', 'MB', 'GB'];
                 const i = Math.floor(Math.log(bytes) / Math.log(1024));
                 return parseFloat((bytes / Math.pow(1024, i)).toFixed(1)) + ' ' + sizes[i];
             }
-            function escapeHtml(unsafe) {
-                return unsafe.replace(/[&<>"]/g, function(m) {
-                    if (m === '&') return '&amp;';
-                    if (m === '<') return '&lt;';
-                    if (m === '>') return '&gt;';
-                    if (m === '"') return '&quot;';
-                    return m;
+
+            // ========== UPLOAD KE GOFILE.IO ==========
+            async function uploadFile(file) {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', GOFILE_UPLOAD_URL, true);
+
+                // Progress
+                xhr.upload.onprogress = (e) => {
+                    if (e.lengthComputable) {
+                        const percent = Math.round((e.loaded / e.total) * 100);
+                        uploadPercent.textContent = `${percent}%`;
+                        uploadProgressFill.style.width = `${percent}%`;
+                        uploadStatus.textContent = `⏳ Upload ${e.loaded}/${e.total} bytes`;
+                    }
+                };
+
+                return new Promise((resolve, reject) => {
+                    xhr.onload = function() {
+                        if (xhr.status === 200) {
+                            try {
+                                const resp = JSON.parse(xhr.responseText);
+                                if (resp.status === 'ok') {
+                                    // GoFile response: { status: "ok", data: { code, fileName, size, downloadPage, ... } }
+                                    const data = resp.data;
+                                    resolve(data);
+                                } else {
+                                    reject(new Error(resp.message || 'Upload gagal'));
+                                }
+                            } catch(e) {
+                                reject(e);
+                            }
+                        } else {
+                            reject(new Error(`HTTP ${xhr.status}`));
+                        }
+                    };
+                    xhr.onerror = () => reject(new Error('Network error'));
+                    xhr.send(formData);
                 });
             }
 
-            // ========== RENDER FILE LIST ==========
-            async function renderFileList() {
-                const files = await getAllFilesMetadata();
-                const now = Date.now();
-                const validFiles = files.filter(f => f.expiresAt > now);
-                for (let f of files) {
-                    if (f.expiresAt <= now) {
-                        await deleteFileChunked(f.id);
+            // ========== GENERATE DIRECT DOWNLOAD LINK ==========
+            function getDirectLink(code, fileName) {
+                // Format direct download GoFile
+                return `https://gofile.io/download/${code}/${encodeURIComponent(fileName)}`;
+            }
+
+            // ========== TAMBAH FILE KE DAFTAR ==========
+            async function handleFileUpload(file) {
+                if (!file) return;
+
+                uploadProgress.style.display = 'block';
+                uploadPercent.textContent = '0%';
+                uploadProgressFill.style.width = '0%';
+                uploadMessage.textContent = '';
+
+                try {
+                    const result = await uploadFile(file);
+                    // result.code, result.fileName, result.size, result.downloadPage
+                    const code = result.code;
+                    const fileName = result.fileName || file.name;
+                    const fileSize = result.size || file.size;
+
+                    // Hitung expired jika dipilih
+                    let expiresAt = null;
+                    const expiryMinutes = parseInt(expirySelect.value);
+                    if (expiryMinutes > 0) {
+                        expiresAt = Date.now() + (expiryMinutes * 60 * 1000);
                     }
+
+                    const directLink = getDirectLink(code, fileName);
+                    const downloadPage = result.downloadPage; // untuk referensi
+
+                    const newFile = {
+                        id: code,  // gunakan code sebagai ID unik
+                        name: fileName,
+                        size: fileSize,
+                        code: code,
+                        directLink: directLink,
+                        downloadPage: downloadPage,
+                        addedAt: Date.now(),
+                        expiresAt: expiresAt
+                    };
+
+                    fileItems.unshift(newFile);
+                    saveFileList();
+                    renderFileList();
+
+                    uploadMessage.textContent = `✅ ${fileName} berhasil diupload!`;
+                } catch (err) {
+                    console.error(err);
+                    uploadMessage.textContent = `❌ Gagal upload: ${err.message}`;
+                } finally {
+                    uploadProgress.style.display = 'none';
+                    fileInput.value = ''; // reset input
                 }
+            }
 
-                const totalBytes = validFiles.reduce((acc, f) => acc + (f.size || 0), 0);
-                totalSizeSpan.textContent = formatBytes(totalBytes);
+            // ========== RENDER DAFTAR FILE ==========
+            function renderFileList() {
+                // Filter expired
+                const now = Date.now();
+                fileItems = fileItems.filter(f => !f.expiresAt || f.expiresAt > now);
+                saveFileList();
 
-                if (validFiles.length === 0) {
-                    fileListContainer.innerHTML = `<div class="empty-message">📭 Tidak ada file. Upload sekarang!</div>`;
+                fileCountSpan.textContent = `${fileItems.length} file`;
+
+                if (fileItems.length === 0) {
+                    fileListContainer.innerHTML = `<div class="empty-message">📭 Belum ada file. Upload sekarang!</div>`;
                     return;
                 }
 
-                validFiles.sort((a,b) => b.uploadedAt - a.uploadedAt);
                 let html = '';
-                validFiles.forEach(file => {
-                    const timeRemaining = formatTimeRemaining(file.expiresAt - now);
+                fileItems.forEach((file, index) => {
+                    let expiryText = '';
+                    if (file.expiresAt) {
+                        const remaining = file.expiresAt - now;
+                        if (remaining > 0) {
+                            const minutes = Math.floor(remaining / 60000);
+                            const seconds = Math.floor((remaining % 60000) / 1000);
+                            expiryText = `⏳ ${minutes}m ${seconds}s`;
+                        } else {
+                            expiryText = `⏹️ Expired`;
+                        }
+                    } else {
+                        expiryText = `∞ Permanen`;
+                    }
+
                     html += `
                         <div class="file-item" data-file-id="${escapeHtml(file.id)}">
                             <div class="file-info">
                                 <div class="file-name">📄 ${escapeHtml(file.name)}</div>
                                 <div class="file-meta">
-                                    <span>${formatBytes(file.size)}</span>
-                                    <span class="countdown">${timeRemaining}</span>
+                                    <span class="badge-size">${formatBytes(file.size)}</span>
+                                    <span class="badge-size" style="background:#ffeed9;">${expiryText}</span>
                                 </div>
                             </div>
                             <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                                <button class="btn-sm" onclick="window.copyLink('${escapeHtml(file.id)}')">🔗 Link</button>
-                                <button class="btn-sm" onclick="window.showQR('${escapeHtml(file.id)}', '${escapeHtml(file.name)}')">📷 QR</button>
-                                <button class="btn-sm btn-delete" onclick="window.deleteFile('${escapeHtml(file.id)}')">✕</button>
+                                <button class="btn-sm" onclick="window.copyLink('${escapeHtml(file.directLink)}')">🔗 Copy Link</button>
+                                <button class="btn-sm" onclick="window.showQR('${escapeHtml(file.directLink)}', '${escapeHtml(file.name)}')">📷 QR</button>
+                                <button class="btn-sm btn-delete" onclick="window.deleteFile('${escapeHtml(file.id)}')">✕ Hapus</button>
                             </div>
                         </div>
                     `;
@@ -496,101 +408,68 @@
                 fileListContainer.innerHTML = html;
             }
 
-            // ========== UPLOAD PROGRESS ==========
-            window.onUploadProgress = function(progress) {
-                uploadPercent.textContent = `${progress.percent}%`;
-                uploadProgressFill.style.width = `${progress.percent}%`;
-                uploadStatus.textContent = `⏳ Upload ${progress.chunksSaved}/${progress.totalChunks} chunk (1MB/chunk)`;
-            };
-
-            async function handleUpload(files) {
-                if (!files.length) return;
-                if (files[0].size > 100 * 1024 * 1024) {
-                    alert('⚠️ File >100MB mungkin lambat/crash di HP. Gunakan file lebih kecil atau di desktop.');
-                }
-
-                let expirySeconds = parseInt(expirySelect.value);
-                if (expirySelect.value === '0') {
-                    expirySeconds = parseInt(customExpiry.value);
-                    if (isNaN(expirySeconds) || expirySeconds < 1) {
-                        alert('Masukkan durasi expired (detik)');
-                        return;
-                    }
-                }
-
-                uploadProgress.style.display = 'block';
-                uploadPercent.textContent = '0%';
-                uploadProgressFill.style.width = '0%';
-                uploadMessage.textContent = '';
-
-                for (let i = 0; i < files.length; i++) {
-                    try {
-                        const fileId = await saveFileChunked(files[i], expirySeconds);
-                        uploadMessage.textContent += `✅ ${files[i].name} selesai. `;
-                    } catch (err) {
-                        console.error(err);
-                        uploadMessage.textContent = `❌ Gagal upload ${files[i].name}: ${err.message}`;
-                    }
-                }
-
-                uploadProgress.style.display = 'none';
-                await renderFileList();
-                fileInput.value = '';
+            // Escape HTML
+            function escapeHtml(unsafe) {
+                if (!unsafe) return '';
+                return unsafe
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
             }
 
-            // ========== GLOBAL FUNCTIONS ==========
-            window.copyLink = function(fileId) {
-                const url = new URL(window.location.href);
-                url.hash = `#file-${fileId}`;
-                navigator.clipboard.writeText(url.toString()).then(() => {
+            // ========== GLOBAL FUNCTIONS (dipanggil dari HTML) ==========
+            window.copyLink = function(link) {
+                navigator.clipboard.writeText(link).then(() => {
                     uploadMessage.textContent = '✅ Link disalin!';
                     setTimeout(() => { uploadMessage.textContent = ''; }, 2000);
-                }).catch(() => prompt('Salin manual:', url.toString()));
+                }).catch(() => {
+                    prompt('Salin manual:', link);
+                });
             };
 
-            window.deleteFile = async function(fileId) {
-                await deleteFileChunked(fileId);
+            window.deleteFile = function(fileId) {
+                fileItems = fileItems.filter(f => f.id !== fileId);
+                saveFileList();
                 renderFileList();
-                uploadMessage.textContent = '🗑️ File dihapus';
+                uploadMessage.textContent = '🗑️ File dihapus dari daftar';
                 setTimeout(() => { uploadMessage.textContent = ''; }, 2000);
             };
 
-            window.showQR = function(fileId, fileName) {
-                const url = new URL(window.location.href);
-                url.hash = `#file-${fileId}`;
-                const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url.toString())}`;
-                qrImageContainer.innerHTML = `<img src="${qrUrl}" alt="QR">`;
+            window.showQR = function(link, fileName) {
+                const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(link)}`;
+                qrImageContainer.innerHTML = `<img src="${qrUrl}" alt="QR Code">`;
                 qrFileName.textContent = `📄 ${fileName}`;
                 qrModal.style.display = 'flex';
             };
 
-            // ========== DOWNLOAD VIA HASH ==========
-            async function handleHash() {
-                const hash = window.location.hash;
-                if (hash && hash.startsWith('#file-')) {
-                    const fileId = hash.substring(6);
-                    const fileData = await getFileChunked(fileId);
-                    if (!fileData) {
-                        alert('❌ File tidak ditemukan / expired.');
-                        window.location.hash = '';
-                        return;
-                    }
-                    if (fileData.expiresAt <= Date.now()) {
-                        alert('⏹️ File sudah expired.');
-                        await deleteFileChunked(fileId);
-                        window.location.hash = '';
-                        return;
-                    }
-                    const blob = fileData.blob;
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = fileData.name;
-                    a.click();
-                    URL.revokeObjectURL(url);
-                    window.location.hash = '';
+            // ========== EVENT LISTENERS ==========
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFileUpload(e.target.files[0]);
                 }
-            }
+            });
+
+            // Drag & drop sederhana
+            document.body.addEventListener('dragover', (e) => e.preventDefault());
+            document.body.addEventListener('drop', async (e) => {
+                e.preventDefault();
+                if (e.dataTransfer.files.length > 0) {
+                    // Bisa handle multiple files, tapi kita ambil satu dulu untuk simpel
+                    handleFileUpload(e.dataTransfer.files[0]);
+                }
+            });
+
+            // QR Modal close
+            closeQrModal.addEventListener('click', () => qrModal.style.display = 'none');
+            window.addEventListener('click', (e) => {
+                if (e.target === qrModal) qrModal.style.display = 'none';
+                if (e.target === scannerContainer) {
+                    if (html5QrCode) html5QrCode.stop();
+                    scannerContainer.style.display = 'none';
+                }
+            });
 
             // ========== SCAN QR ==========
             function startScanner() {
@@ -602,16 +481,8 @@
                     (decodedText) => {
                         html5QrCode.stop().then(() => {
                             scannerContainer.style.display = 'none';
-                            try {
-                                const url = new URL(decodedText);
-                                if (url.hash && url.hash.startsWith('#file-')) {
-                                    window.location.href = decodedText;
-                                } else {
-                                    alert('QR bukan link file valid.');
-                                }
-                            } catch(e) {
-                                alert('QR tidak valid.');
-                            }
+                            // Buka link di tab baru
+                            window.open(decodedText, '_blank');
                         });
                     },
                     (err) => {}
@@ -621,28 +492,6 @@
                 });
             }
 
-            // ========== EVENT LISTENERS ==========
-            fileInput.addEventListener('change', (e) => handleUpload(e.target.files));
-
-            document.body.addEventListener('dragover', (e) => e.preventDefault());
-            document.body.addEventListener('drop', async (e) => {
-                e.preventDefault();
-                if (e.dataTransfer.files.length) await handleUpload(e.dataTransfer.files);
-            });
-
-            expirySelect.addEventListener('change', function() {
-                customExpiry.style.display = this.value === '0' ? 'inline-block' : 'none';
-            });
-
-            closeQrModal.addEventListener('click', () => qrModal.style.display = 'none');
-            window.addEventListener('click', (e) => {
-                if (e.target === qrModal) qrModal.style.display = 'none';
-                if (e.target === scannerContainer) {
-                    if (html5QrCode) html5QrCode.stop();
-                    scannerContainer.style.display = 'none';
-                }
-            });
-
             scanQrBtn.addEventListener('click', startScanner);
             closeScanner.addEventListener('click', () => {
                 if (html5QrCode) html5QrCode.stop();
@@ -650,21 +499,26 @@
             });
 
             // ========== INIT ==========
-            window.onload = async function() {
-                await openDB();
-                await deleteExpiredFiles();
-                await renderFileList();
-                await handleHash();
-                refreshInterval = setInterval(async () => {
-                    await deleteExpiredFiles();
-                    await renderFileList();
-                }, 1000); // update tiap detik
+            window.onload = function() {
+                loadFileList();
+
+                // Refresh countdown tiap detik
+                setInterval(() => {
+                    const now = Date.now();
+                    let changed = false;
+                    fileItems.forEach(f => {
+                        if (f.expiresAt && f.expiresAt <= now) changed = true;
+                    });
+                    if (changed) {
+                        fileItems = fileItems.filter(f => !f.expiresAt || f.expiresAt > now);
+                        saveFileList();
+                        renderFileList();
+                    } else {
+                        // update teks countdown tanpa render ulang penuh? kita render ulang ringan
+                        renderFileList();
+                    }
+                }, 1000);
             };
-            window.onbeforeunload = function() {
-                if (refreshInterval) clearInterval(refreshInterval);
-                if (html5QrCode) html5QrCode.stop();
-            };
-            window.addEventListener('hashchange', handleHash);
         })();
     </script>
 </body>
