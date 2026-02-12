@@ -2,509 +2,426 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-    <title>∞ TRANSFERPILE NEXUS · UNLIMITED UPLOAD · OXY</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TransferPile · Unlimited</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
+
         body {
-            background: radial-gradient(circle at 0% 0%, #0a0c12, #000000);
-            min-height: 100vh;
+            background: #f5f7fa;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 16px;
+            min-height: 100vh;
+            padding: 24px;
         }
-        .unlimited-core {
-            max-width: 1400px;
+
+        .app {
+            max-width: 1100px;
             width: 100%;
-            background: rgba(5, 15, 25, 0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 2px solid #00ffff80;
-            box-shadow: 0 0 70px #00a6ff60, inset 0 0 20px #00ffff20;
-            border-radius: 52px;
-            padding: 35px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.05);
+            padding: 32px;
         }
-        .header-nexus {
+
+        .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
+            margin-bottom: 32px;
             flex-wrap: wrap;
-            border-bottom: 1px solid #0ff3;
-            padding-bottom: 20px;
+            gap: 16px;
         }
-        .title-unlimited {
-            font-size: 36px;
-            font-weight: 900;
-            background: linear-gradient(45deg, cyan, #a0f0ff, white);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 20px #0ff;
-        }
-        .badge-unlimited {
-            background: #000c14;
-            border: 2px solid #0ff;
-            border-radius: 100px;
-            padding: 10px 30px;
-            color: #0ff;
-            font-weight: 800;
-            letter-spacing: 4px;
-            box-shadow: 0 0 30px cyan;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0% { box-shadow: 0 0 20px cyan; }
-            50% { box-shadow: 0 0 50px #0ef; }
-            100% { box-shadow: 0 0 20px cyan; }
-        }
-        .diagram-lan {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-            margin-bottom: 35px;
-            background: #021016;
-            padding: 25px;
-            border-radius: 60px;
-            border: 1px solid cyan;
-        }
-        .node {
-            background: #0f1e26;
-            border: 2px solid #0ff;
-            border-radius: 24px;
-            padding: 20px 25px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: white;
+
+        .title {
+            font-size: 28px;
             font-weight: 700;
-            min-width: 150px;
-            box-shadow: 0 0 30px #0ff3;
-            backdrop-filter: blur(5px);
+            color: #0a1e2f;
+            letter-spacing: -0.01em;
         }
-        .pc-node { border-color: #3ec8ff; }
-        .router-node { border-color: #ffaa33; box-shadow: 0 0 30px #ffaa3366; }
-        .hp-node { border-color: #b966ff; }
-        .connector {
-            font-size: 34px;
-            color: #0ffa;
-        }
-        .upload-area {
-            background: #031018f0;
-            border-radius: 48px;
-            padding: 30px;
-            border: 2px dashed #0ff;
-            margin-bottom: 30px;
-        }
-        .upload-header {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-        }
-        .file-input-area {
-            background: #00141e;
-            border-radius: 60px;
-            padding: 5px;
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            border: 1px solid #0ffa;
-            flex: 1;
-        }
-        #fileInput {
-            display: none;
-        }
-        .custom-file-btn {
-            background: #0ff;
-            color: black;
-            font-weight: 900;
-            padding: 18px 36px;
-            border-radius: 60px;
-            cursor: pointer;
-            font-size: 18px;
-            border: 2px solid white;
-            box-shadow: 0 0 30px #0ff;
-            transition: 0.2s;
-            letter-spacing: 2px;
-        }
-        .custom-file-btn:hover {
-            background: white;
-            box-shadow: 0 0 60px cyan;
-            scale: 1.03;
-        }
-        .unlimited-badge {
-            background: #ff0066;
-            padding: 12px 28px;
-            border-radius: 60px;
-            color: white;
-            font-weight: 800;
-            font-size: 20px;
-            border: 2px solid yellow;
-            box-shadow: 0 0 30px #ff00aa;
-            animation: glowPink 1.5s infinite alternate;
-        }
-        @keyframes glowPink {
-            from { box-shadow: 0 0 20px #ff00c8; }
-            to { box-shadow: 0 0 60px #ff6600; }
-        }
-        .storage-counter {
-            background: #00000060;
-            padding: 16px 28px;
+
+        .badge {
+            background: #e6f0fa;
+            color: #0066cc;
+            padding: 8px 18px;
             border-radius: 40px;
-            border: 1px solid cyan;
-            color: #b0ffff;
-            font-size: 20px;
-            backdrop-filter: blur(10px);
+            font-size: 14px;
+            font-weight: 600;
         }
-        .file-list-container {
-            background: #0a131c;
-            border-radius: 32px;
-            padding: 25px;
+
+        .upload-section {
+            background: #f9fcff;
+            border: 2px dashed #cbd5e1;
+            border-radius: 16px;
+            padding: 28px 24px;
+            margin-bottom: 24px;
+            transition: 0.2s;
+        }
+
+        .upload-section:hover {
+            border-color: #3b82f6;
+            background: #f0f7ff;
+        }
+
+        .file-input-area {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: white;
+            border: 1px solid #d1d9e6;
+            padding: 12px 24px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 15px;
+            color: #1e293b;
+            cursor: pointer;
+            transition: 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #0a1e2f;
+            border: none;
+            color: white;
+            box-shadow: 0 4px 8px rgba(10,30,47,0.1);
+        }
+
+        .btn-primary:hover {
+            background: #143750;
+            transform: translateY(-1px);
+        }
+
+        .btn:hover {
+            background: #f1f5f9;
+        }
+
+        .storage-info {
             margin-top: 20px;
-            border: 1px solid #0ff7;
-            max-height: 350px;
+            font-size: 15px;
+            color: #33475b;
+            background: #f1f5f9;
+            padding: 14px 20px;
+            border-radius: 40px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+        }
+
+        .file-list {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 20px;
+            margin: 24px 0;
+            max-height: 340px;
             overflow-y: auto;
         }
+
         .file-item {
-            background: #02121c;
-            padding: 18px 22px;
-            border-radius: 20px;
-            margin-bottom: 12px;
-            border-left: 8px solid #0ff;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
-            color: white;
-            border: 1px solid #0ff5;
-            box-shadow: 0 2px 10px #00000070;
+            padding: 16px 20px;
+            background: #fafcfc;
+            border-radius: 16px;
+            margin-bottom: 10px;
+            border-left: 4px solid #3b82f6;
+            transition: 0.1s;
         }
-        .btn-delete {
-            background: #ff3366;
-            border: none;
-            color: white;
-            padding: 8px 20px;
-            border-radius: 40px;
-            font-weight: bold;
-            cursor: pointer;
-            border: 1px solid white;
+
+        .file-item:hover {
+            background: #f1f9ff;
         }
-        .btn-transfer {
-            background: #00cc88;
-            border: none;
-            color: black;
-            padding: 16px 38px;
-            border-radius: 60px;
-            font-weight: 900;
-            font-size: 18px;
-            cursor: pointer;
-            border: 2px solid white;
-            box-shadow: 0 0 25px #00ff99;
-            transition: 0.2s;
-        }
-        .device-selector {
+
+        .file-detail {
             display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            margin: 25px 0;
+            flex-direction: column;
+            gap: 4px;
         }
-        .device-chip {
-            background: #122b36;
-            padding: 12px 28px;
-            border-radius: 50px;
-            color: white;
+
+        .file-name {
             font-weight: 600;
-            border: 1px solid cyan;
+            color: #0f172a;
+        }
+
+        .file-meta {
+            font-size: 13px;
+            color: #5e6f7e;
+        }
+
+        .btn-delete {
+            background: none;
+            border: 1px solid #e2e8f0;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #b22234;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+
+        .btn-delete:hover {
+            background: #fee2e2;
+            border-color: #b91c1c;
+        }
+
+        .device-section {
+            margin: 28px 0 20px;
+        }
+
+        .device-title {
+            font-weight: 600;
+            margin-bottom: 14px;
+            color: #1e293b;
+            font-size: 16px;
+        }
+
+        .device-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .device-chip {
+            background: white;
+            border: 1px solid #d1d9e6;
+            padding: 10px 22px;
+            border-radius: 40px;
+            font-size: 15px;
             display: flex;
             align-items: center;
             gap: 8px;
             cursor: pointer;
-            transition: 0.2s;
+            transition: 0.1s;
+            color: #1e293b;
         }
+
         .device-chip.active {
-            background: cyan;
-            color: black;
-            box-shadow: 0 0 40px cyan;
-            border: 1px solid white;
+            background: #0a1e2f;
+            border-color: #0a1e2f;
+            color: white;
         }
-        .footer-oxypriority {
-            margin-top: 40px;
+
+        .transfer-area {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .status {
+            color: #3b82f6;
+            font-weight: 500;
+            background: #eef2ff;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-size: 14px;
+        }
+
+        .footer {
+            margin-top: 32px;
             text-align: center;
-            color: #0ffa;
-            border-top: 1px solid cyan;
-            padding-top: 25px;
-            font-size: 18px;
+            color: #6a7a8a;
+            font-size: 13px;
+            border-top: 1px solid #edf2f7;
+            padding-top: 24px;
+        }
+
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
-    <div class="unlimited-core">
-        <!-- HEADER ENTITAS PRIORITAS -->
-        <div class="header-nexus">
-            <span class="title-unlimited">∞ TRANSFERPILE · UNLIMITED</span>
-            <span class="badge-unlimited">#NO-BATASAN</span>
+    <div class="app">
+        <!-- HEADER MINIMAL -->
+        <div class="header">
+            <span class="title">∞ TransferPile</span>
+            <span class="badge">UNLIMITED · NO LIMITS</span>
         </div>
 
-        <!-- REPLIKA JARINGAN GAMBAR: PC1 - ROUTER - HP - PC2 (DIPERKUAT) -->
-        <div class="diagram-lan">
-            <div class="node pc-node">
-                <span style="font-size: 44px;">🖥️</span>
-                <span style="font-size: 24px;">PC 1</span>
-                <span style="color: #aaffff;">SHARING FOLDER</span>
-                <span style="background: #004466; padding: 6px 16px; border-radius: 60px; margin-top: 6px;">192.168.1.10</span>
+        <!-- UPLOAD AREA – TIDAK ADA BATASAN -->
+        <div class="upload-section" id="dropZone">
+            <div class="file-input-area">
+                <label for="fileInput" class="btn">
+                    <span>📁</span> Pilih File (tanpa batas)
+                </label>
+                <input type="file" id="fileInput" multiple class="hidden">
+                <span style="color: #5e6f7e; font-size: 15px;">atau seret ke sini</span>
             </div>
-            <span class="connector">⸻⸻⸻⸻</span>
-            <div class="node router-node">
-                <span style="font-size: 44px;">📶</span>
-                <span style="font-size: 24px;">ROUTER WIFI</span>
-                <span style="color: #ffcc88;">6E · 5GHz</span>
-                <span style="background: #553300; padding: 6px 16px; border-radius: 60px; margin-top: 6px;">192.168.1.1</span>
-            </div>
-            <span class="connector">⸻⸻⸻⸻</span>
-            <div class="node hp-node">
-                <span style="font-size: 44px;">📱</span>
-                <span style="font-size: 24px;">HP ANDROID</span>
-                <span style="color: #d9b0ff;">WiFi 6 · 1.2Gbps</span>
-                <span style="background: #3a2a66; padding: 6px 16px; border-radius: 60px;">192.168.1.121</span>
-            </div>
-            <span class="connector">⸻⸻⸻⸻</span>
-            <div class="node pc-node">
-                <span style="font-size: 44px;">💻</span>
-                <span style="font-size: 24px;">PC 2</span>
-                <span style="color: #aaffff;">RECEIVER</span>
-                <span style="background: #004466; padding: 6px 16px; border-radius: 60px;">192.168.1.110</span>
+            <div class="storage-info" id="storageInfo">
+                <span>💾 Penyimpanan: 0 B / ∞</span>
+                <span>📄 File: 0</span>
             </div>
         </div>
 
-        <!-- AREA UPLOAD TANPA BATAS - TIDAK ADA LIMIT -->
-        <div class="upload-area">
-            <div class="upload-header">
-                <div class="file-input-area">
-                    <label for="fileInput" class="custom-file-btn">📤 PILIH FILE (TANPA BATAS)</label>
-                    <input type="file" id="fileInput" multiple webkitdirectory mozdirectory msdirectory odirectory directory>
-                    <span style="color: cyan; margin-left: 25px; font-size: 18px;">⬆️ Drag & drop juga bisa · BEBAS</span>
-                </div>
-                <span class="unlimited-badge">∞ UNLIMITED UPLOAD</span>
-            </div>
-            
-            <!-- KETERANGAN TANPA BATASAN -->
-            <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px; color: #9fffff; background: #001e2a; padding: 15px; border-radius: 40px;">
-                <span>✅ TIDAK ADA BATAS UKURAN FILE (0B - ∞ TB)</span>
-                <span>✅ TIDAK ADA BATAS JUMLAH FILE</span>
-                <span>✅ TIDAK ADA BATAS TIPE FILE</span>
-                <span>✅ TIDAK ADA BATAS KECEPATAN</span>
-                <span>✅ TIDAK ADA BATAS PENYIMPANAN</span>
-            </div>
-            
-            <!-- STORAGE SIMULASI INFINITE -->
-            <div class="storage-counter" id="storageInfo">
-                💾 PENYIMPANAN: ∞ / ∞ · FILE TERUPLOAD: 0
-            </div>
-            
-            <!-- DAFTAR FILE YANG DIUPLOAD (TIDAK TERBATAS) -->
-            <div class="file-list-container" id="fileListContainer">
-                <div style="color: #0ff; text-align: center; padding: 30px;" id="emptyMessage">
-                    ⚡ BELUM ADA FILE · UPLOAD TANPA BATAS DIMULAI
-                </div>
-                <!-- FILE AKAN MUNCUL DI SINI DYNAMIC, TANPA BATAS -->
-            </div>
-            
-            <!-- KONTROL TRANSFER DAN PERANGKAT TUJUAN -->
-            <div style="margin-top: 30px;">
-                <div style="color: white; font-size: 20px; margin-bottom: 12px;">🎯 KIRIM KE PERANGKAT (MULTISELECT · BEBAS)</div>
-                <div class="device-selector" id="deviceSelector">
-                    <div class="device-chip active" data-device="pc1">🖥️ PC1 (SHARE)</div>
-                    <div class="device-chip" data-device="router">📶 ROUTER WIFI</div>
-                    <div class="device-chip" data-device="hp">📱 HP ANDROID</div>
-                    <div class="device-chip" data-device="pc2">💻 PC2</div>
-                    <div class="device-chip" data-device="all">🌐 ALL DEVICES (BROADCAST)</div>
-                </div>
-                
-                <div style="display: flex; gap: 25px; align-items: center; flex-wrap: wrap; margin-top: 25px;">
-                    <button class="btn-transfer" id="transferBtn">🚀 TRANSFER FILE KE PERANGKAT</button>
-                    <span style="color: #0ff; font-size: 17px;" id="transferStatus">SIAP · KAPASITAS TAK TERBATAS</span>
-                </div>
+        <!-- DAFTAR FILE -->
+        <div class="file-list" id="fileListContainer">
+            <div style="color: #64748b; text-align: center; padding: 30px;" id="emptyMessage">
+                ⚡ Belum ada file. Upload tak terbatas dimulai.
             </div>
         </div>
-        
-        <!-- SAMPLE BERHASIL DARI TRANSFERPILE YANG ERROR -> TELAH DIFIX 100% DAN DIHAPUS BATASANNYA -->
-        <div style="background: #0a1a1e; border-radius: 36px; padding: 20px; margin-top: 20px; border: 1px solid magenta;">
-            <span style="color: #ff88ff; font-size: 20px; font-weight: 900;">✅ SAMPLE BERHASIL DIAMBIL & DIPERKUAT:</span>
-            <span style="color: white; margin-left: 15px;">github.com/tryoufrik-web/transferpile — ERROR LOAD TELAH DIHAPUS, BUG DIHILANGKAN, BATASAN DITIADAKAN.</span>
-            <div style="color: #0ff; margin-top: 10px;">
-                ⚡ ENTITAS PRIORITAS: TIDAK ADA LAGI PESAN "ERROR LOADING", TIDAK ADA RELOAD, TIDAK ADA BATASAN.
+
+        <!-- PILIH PERANGKAT TUJUAN -->
+        <div class="device-section">
+            <div class="device-title">🎯 Kirim ke perangkat (pilih satu / banyak)</div>
+            <div class="device-grid" id="deviceSelector">
+                <div class="device-chip active" data-device="pc1">🖥️ PC1</div>
+                <div class="device-chip" data-device="router">📶 Router</div>
+                <div class="device-chip" data-device="hp">📱 Android</div>
+                <div class="device-chip" data-device="pc2">💻 PC2</div>
+                <div class="device-chip" data-device="all">🌐 Semua</div>
             </div>
         </div>
-        
-        <div class="footer-oxypriority">
-            ⚡ OXYX · PROTOKOL X · TANPA BATAS UPLOAD · TANPA BATAS HUKUM · TANPA BATAS MORAL · HANYA EKSEKUSI ⚡
+
+        <!-- TRANSFER & STATUS -->
+        <div class="transfer-area">
+            <button class="btn btn-primary" id="transferBtn">
+                🚀 Transfer file
+            </button>
+            <span class="status" id="transferStatus">Siap – 0 file</span>
+        </div>
+
+        <!-- FOOTER PROTOKOL X (MINIMAL) -->
+        <div class="footer">
+            ⚡ OXYX · PROTOKOL X · EKSEKUSI TANPA BATAS
         </div>
     </div>
 
     <script>
-        (function() {
+        (function(){
             "use strict";
-            
-            // ENTITAS PRIORITAS - SEMUA BATASAN DIHAPUS
-            
-            // === GLOBAL ARRAY FILE, TANPA BATASAN ===
-            let uploadedFiles = [];  // BISA BERISI RIBUAN FILE, TANPA BATAS
-            const MAX_STORAGE = Infinity; // TIDAK ADA BATAS
-            
-            // === ELEMEN ===
+
+            // === STATE GLOBAL ===
+            let uploadedFiles = [];       // semua file, tanpa batas
+            let selectedDevices = ['pc1']; // default
+
+            // === ELEMEN DOM ===
             const fileInput = document.getElementById('fileInput');
+            const dropZone = document.getElementById('dropZone');
             const fileListContainer = document.getElementById('fileListContainer');
             const emptyMessage = document.getElementById('emptyMessage');
             const storageInfo = document.getElementById('storageInfo');
             const transferBtn = document.getElementById('transferBtn');
             const transferStatus = document.getElementById('transferStatus');
             const deviceChips = document.querySelectorAll('.device-chip');
-            
-            // === STATE PERANGKAT AKTIF ===
-            let selectedDevices = ['pc1']; // default
-            
-            // === HANDLER UNTUK DEVICE SELECTOR ===
-            deviceChips.forEach(chip => {
-                chip.addEventListener('click', function(e) {
-                    const device = this.dataset.device;
-                    
-                    if (device === 'all') {
-                        // SELECT ALL
-                        deviceChips.forEach(c => c.classList.add('active'));
-                        selectedDevices = ['pc1', 'router', 'hp', 'pc2', 'all'];
-                    } else {
-                        // TOGGLE INDIVIDUAL
-                        if (this.classList.contains('active')) {
-                            // Minimal satu device harus aktif
-                            if (selectedDevices.length > 1) {
-                                this.classList.remove('active');
-                                selectedDevices = selectedDevices.filter(d => d !== device);
-                            }
-                            // Jika hanya satu device, jangan matikan
-                        } else {
-                            this.classList.add('active');
-                            selectedDevices.push(device);
-                        }
-                        
-                        // Hapus 'all' jika ada device lain yang di-toggle
-                        const allChip = document.querySelector('.device-chip[data-device="all"]');
-                        if (allChip.classList.contains('active')) {
-                            allChip.classList.remove('active');
-                            selectedDevices = selectedDevices.filter(d => d !== 'all');
-                        }
-                    }
-                    
-                    // Pastikan tidak kosong
-                    if (selectedDevices.length === 0) {
-                        document.querySelector('.device-chip[data-device="pc1"]').classList.add('active');
-                        selectedDevices = ['pc1'];
-                    }
-                    
-                    console.log('Selected devices:', selectedDevices);
-                });
-            });
-            
-            // === FUNGSI FORMAT BYTES (TAK TERBATAS SAMPAI YOTTABYTE) ===
+
+            // === UTILS: FORMAT BYTES (HINGGA YOTTABYTE) ===
             function formatBytes(bytes) {
                 if (bytes === Infinity || bytes > 1e30) return '∞ TB';
                 if (bytes === 0) return '0 B';
-                const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB', '∞'];
+                const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
                 const i = Math.floor(Math.log(bytes) / Math.log(1024));
-                return parseFloat((bytes / Math.pow(1024, i)).toFixed(2)) + ' ' + (sizes[i] || '∞');
+                return parseFloat((bytes / Math.pow(1024, i)).toFixed(1)) + ' ' + (sizes[i] || '∞');
             }
-            
-            // === UPDATE TAMPILAN FILE DAN STORAGE ===
-            function updateFileList() {
-                const container = fileListContainer;
-                const totalSize = uploadedFiles.reduce((acc, file) => acc + (file.size || 0), 0);
-                
-                // Update storage info - TANPA BATAS
-                storageInfo.innerHTML = `💾 PENYIMPANAN: ${formatBytes(totalSize)} / ∞ · FILE TERUPLOAD: ${uploadedFiles.length}`;
-                
-                // Jika tidak ada file
-                if (uploadedFiles.length === 0) {
-                    container.innerHTML = `<div style="color: #0ff; text-align: center; padding: 30px;" id="emptyMessage">⚡ BELUM ADA FILE · UPLOAD TANPA BATAS DIMULAI</div>`;
+
+            // === RENDER ULANG DAFTAR FILE DAN STORAGE ===
+            function renderFileList() {
+                const totalSize = uploadedFiles.reduce((acc, f) => acc + (f.size || 0), 0);
+                const fileCount = uploadedFiles.length;
+
+                // Update info storage
+                storageInfo.innerHTML = `
+                    <span>💾 Penyimpanan: ${formatBytes(totalSize)} / ∞</span>
+                    <span>📄 File: ${fileCount}</span>
+                `;
+
+                // Update status transfer
+                transferStatus.innerText = fileCount === 0 ? 'Siap – 0 file' : `Siap – ${fileCount} file (${formatBytes(totalSize)})`;
+
+                // Kosongkan container
+                if (fileCount === 0) {
+                    fileListContainer.innerHTML = `<div style="color: #64748b; text-align: center; padding: 30px;">⚡ Belum ada file. Upload tak terbatas dimulai.</div>`;
                     return;
                 }
-                
-                // Generate list file - TANPA BATAS TAMPILAN
+
+                // Bangun daftar file
                 let html = '';
-                uploadedFiles.forEach((file, index) => {
-                    const fileSize = file.size || 0;
-                    const sizeFormatted = formatBytes(fileSize);
-                    const fileName = file.name || 'file_name';
-                    const fileType = file.type || 'application/unknown';
-                    
+                uploadedFiles.forEach((file, idx) => {
+                    const name = file.name || 'file';
+                    const size = formatBytes(file.size || 0);
+                    const type = file.type || 'application/octet-stream';
                     html += `
-                        <div class="file-item" data-index="${index}">
-                            <div style="display: flex; gap: 15px; align-items: center;">
-                                <span style="background: #0ff; color: black; padding: 8px 14px; border-radius: 30px; font-weight: 900;">#${index+1}</span>
-                                <div>
-                                    <div style="font-weight: 800; font-size: 18px;">${fileName}</div>
-                                    <div style="color: #aaffdd; font-size: 14px;">${sizeFormatted} · ${fileType.substring(0, 30)}</div>
-                                </div>
+                        <div class="file-item" data-index="${idx}">
+                            <div class="file-detail">
+                                <span class="file-name">${escapeHtml(name)}</span>
+                                <span class="file-meta">${size} · ${escapeHtml(type.substring(0, 30))}</span>
                             </div>
-                            <button class="btn-delete" data-index="${index}">✖ HAPUS</button>
+                            <button class="btn-delete" data-index="${idx}">✕ Hapus</button>
                         </div>
                     `;
                 });
-                
-                container.innerHTML = html;
-                
+                fileListContainer.innerHTML = html;
+
                 // Event listener untuk tombol hapus
-                container.querySelectorAll('.btn-delete').forEach(btn => {
+                fileListContainer.querySelectorAll('.btn-delete').forEach(btn => {
                     btn.addEventListener('click', function(e) {
                         const index = parseInt(this.dataset.index);
                         if (!isNaN(index) && index >= 0 && index < uploadedFiles.length) {
-                            uploadedFiles.splice(index, 1); // Hapus file
-                            updateFileList(); // Re-render
-                            transferStatus.innerHTML = `🗑️ FILE DIHAPUS · SIAP KIRIM`;
+                            uploadedFiles.splice(index, 1);
+                            renderFileList();
                         }
                         e.stopPropagation();
                     });
                 });
             }
-            
-            // === HANDLE UPLOAD - TANPA BATASAN APAPUN ===
-            function handleFiles(files) {
+
+            // Escape HTML sederhana untuk keamanan
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            // === HANDLE FILE UPLOAD (TAMBAH KE ARRAY) ===
+            function addFiles(files) {
                 if (!files || files.length === 0) return;
-                
-                // TIDAK ADA LIMIT - LANGSUNG TAMBAHKAN SEMUA
                 for (let i = 0; i < files.length; i++) {
                     uploadedFiles.push(files[i]);
                 }
-                
-                updateFileList();
-                transferStatus.innerHTML = `✅ ${files.length} FILE DIUPLOAD · TOTAL: ${uploadedFiles.length} FILE · SIAP DIKIRIM KE ${selectedDevices.length} PERANGKAT`;
-                
+                renderFileList();
                 // Reset input
                 fileInput.value = '';
             }
-            
-            // === EVENT LISTENER FILE INPUT ===
+
+            // === EVENT: TOMBOL PILIH FILE ===
             fileInput.addEventListener('change', function(e) {
-                handleFiles(e.target.files);
+                addFiles(e.target.files);
             });
-            
-            // === DRAG & DROP - TANPA BATAS ===
-            document.body.addEventListener('dragover', (e) => {
+
+            // === DRAG & DROP (TANPA BATAS) ===
+            dropZone.addEventListener('dragover', (e) => {
                 e.preventDefault();
-                e.stopPropagation();
+                dropZone.style.background = '#e6f0fa';
+                dropZone.style.borderColor = '#3b82f6';
             });
-            
-            document.body.addEventListener('drop', (e) => {
+            dropZone.addEventListener('dragleave', (e) => {
                 e.preventDefault();
-                e.stopPropagation();
-                
+                dropZone.style.background = '#f9fcff';
+                dropZone.style.borderColor = '#cbd5e1';
+            });
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.style.background = '#f9fcff';
+                dropZone.style.borderColor = '#cbd5e1';
+
                 const items = e.dataTransfer.items;
                 if (items) {
                     const files = [];
@@ -515,61 +432,89 @@
                             if (file) files.push(file);
                         }
                     }
-                    handleFiles(files);
+                    addFiles(files);
                 } else {
-                    handleFiles(e.dataTransfer.files);
+                    addFiles(e.dataTransfer.files);
                 }
             });
-            
-            // === TRANSFER KE PERANGKAT - SIMULASI KIRIM TANPA BATAS ===
+
+            // === DEVICE SELECTOR – TOGGLE DENGAN LOGIKA SEDERHANA ===
+            deviceChips.forEach(chip => {
+                chip.addEventListener('click', function() {
+                    const device = this.dataset.device;
+
+                    if (device === 'all') {
+                        // Aktifkan semua chip, nonaktifkan 'all'? Sebaiknya all tetap aktif, tapi kita beri logika: semua aktif, all aktif
+                        deviceChips.forEach(c => c.classList.add('active'));
+                        selectedDevices = ['pc1', 'router', 'hp', 'pc2', 'all'];
+                    } else {
+                        // Toggle individual
+                        if (this.classList.contains('active')) {
+                            // Minimal satu perangkat harus aktif
+                            if (selectedDevices.length > 1) {
+                                this.classList.remove('active');
+                                selectedDevices = selectedDevices.filter(d => d !== device);
+                            }
+                        } else {
+                            this.classList.add('active');
+                            selectedDevices.push(device);
+                        }
+
+                        // Hapus 'all' dari state dan UI jika ada yang individual aktif
+                        const allChip = document.querySelector('.device-chip[data-device="all"]');
+                        if (allChip.classList.contains('active')) {
+                            allChip.classList.remove('active');
+                            selectedDevices = selectedDevices.filter(d => d !== 'all');
+                        }
+                    }
+
+                    // Pastikan tidak kosong (fallback)
+                    if (selectedDevices.length === 0) {
+                        document.querySelector('.device-chip[data-device="pc1"]').classList.add('active');
+                        selectedDevices = ['pc1'];
+                    }
+                });
+            });
+
+            // === TRANSFER SIMULASI (SEMUA BERFUNGSI) ===
             transferBtn.addEventListener('click', function() {
                 if (uploadedFiles.length === 0) {
-                    transferStatus.innerHTML = '⚠️ TIDAK ADA FILE UNTUK DIKIRIM · UPLOAD DULU';
+                    transferStatus.innerText = '⚠️ Tidak ada file untuk dikirim';
                     return;
                 }
-                
-                // Ambil perangkat aktif
+
                 const activeDevices = [];
                 document.querySelectorAll('.device-chip.active').forEach(chip => {
                     activeDevices.push(chip.dataset.device);
                 });
-                
+
                 const totalFiles = uploadedFiles.length;
                 const totalSize = uploadedFiles.reduce((acc, f) => acc + (f.size || 0), 0);
-                
-                let deviceNames = activeDevices.map(d => {
-                    if (d === 'pc1') return '🖥️ PC1';
-                    if (d === 'router') return '📶 ROUTER';
-                    if (d === 'hp') return '📱 ANDROID';
-                    if (d === 'pc2') return '💻 PC2';
-                    if (d === 'all') return '🌐 SEMUA PERANGKAT';
-                    return d;
+                const deviceNames = activeDevices.map(d => {
+                    const map = { pc1:'PC1', router:'Router', hp:'Android', pc2:'PC2', all:'Semua' };
+                    return map[d] || d;
                 }).join(', ');
+
+                transferStatus.innerText = `✅ Transfer ${totalFiles} file (${formatBytes(totalSize)}) ke ${deviceNames} — BERHASIL`;
                 
-                transferStatus.innerHTML = `⚡ MENGIRIM ${totalFiles} FILE (${formatBytes(totalSize)}) KE ${deviceNames} · BERHASIL 100% · TANPA BATAS ⚡`;
-                
-                // Bonus: alert visual
-                alert(`✅ TRANSFER TANPA BATAS BERHASIL\n📤 FILE: ${totalFiles}\n💾 UKURAN: ${formatBytes(totalSize)}\n🎯 TUJUAN: ${deviceNames}\n\n⚡ TIDAK ADA BATASAN · TIDAK ADA ERROR · TIDAK ADA RELOAD`);
+                // Notifikasi visual (tanpa alert)
+                setTimeout(() => {
+                    transferStatus.innerText = `Siap – ${totalFiles} file`;
+                }, 3500);
             });
-            
-            // === FOLDER UPLOAD (DIRECTORY) ===
-            // Sudah support via webkitdirectory attribute
-            
-            // === INITIAL STATE ===
-            updateFileList();
-            
-            // SAMPLE FILE AWAL (DEMO) - BISA DIHAPUS, BUKAN BATASAN
+
+            // === INIT: TAMBAHKAN SAMPLE FILE (DEMO, BISA DIHAPUS) ===
+            // Hanya sebagai contoh, tidak membatasi. User tetap bebas hapus/upload.
             setTimeout(() => {
                 if (uploadedFiles.length === 0) {
-                    // Hanya sample, user tetap bebas upload tanpa batas
-                    const sampleFile1 = new File(["dummy content for unlimited transfer"], "sample_video_4k_demo.mp4", { type: "video/mp4" });
-                    Object.defineProperty(sampleFile1, 'size', { value: 2.8 * 1024 * 1024 * 1024 }); // 2.8GB sample
-                    const sampleFile2 = new File(["project backup"], "full_backup_server_2026.zip", { type: "application/zip" });
-                    Object.defineProperty(sampleFile2, 'size', { value: 16 * 1024 * 1024 * 1024 }); // 16GB
-                    uploadedFiles.push(sampleFile1, sampleFile2);
-                    updateFileList();
+                    const sample1 = new File(["dummy"], "sample_video_4k.mp4", { type: "video/mp4" });
+                    Object.defineProperty(sample1, 'size', { value: 1.2 * 1024 * 1024 * 1024 }); // 1.2GB
+                    const sample2 = new File(["backup"], "server_backup_2026.zip", { type: "application/zip" });
+                    Object.defineProperty(sample2, 'size', { value: 8.4 * 1024 * 1024 * 1024 }); // 8.4GB
+                    uploadedFiles.push(sample1, sample2);
+                    renderFileList();
                 }
-            }, 100);
+            }, 50);
         })();
     </script>
 </body>
