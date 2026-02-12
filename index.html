@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📁 Share File + Expired Otomatis</title>
+    <title>📁 Share + QR · Expired</title>
+    <!-- html5-qrcode untuk scan QR -->
+    <script src="https://unpkg.com/html5-qrcode" minified></script>
     <style>
         * {
             margin: 0;
@@ -22,7 +24,7 @@
         }
 
         .container {
-            max-width: 1100px;
+            max-width: 1200px;
             width: 100%;
             background: rgba(255,255,255,0.75);
             backdrop-filter: blur(12px);
@@ -52,6 +54,28 @@
             background: rgba(46,126,176,0.04);
             border-radius: 0 16px 16px 0;
             line-height: 1.5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-scan {
+            background: #0b2b4a;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 50px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-scan:hover {
+            background: #164566;
+            transform: scale(1.02);
         }
 
         .upload-card {
@@ -116,7 +140,7 @@
             font-size: 15px;
         }
 
-        select {
+        select, input[type="number"] {
             padding: 12px 20px;
             border-radius: 40px;
             border: 1.5px solid #d4e0e9;
@@ -128,7 +152,7 @@
             transition: 0.2s;
         }
 
-        select:focus {
+        select:focus, input:focus {
             border-color: #0b2b4a;
         }
 
@@ -246,6 +270,95 @@
             font-size: 16px;
         }
 
+        /* MODAL QR */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 32px;
+            border-radius: 32px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+        }
+
+        .modal-content h3 {
+            margin-bottom: 20px;
+            color: #0b2b4a;
+        }
+
+        .qr-image {
+            width: 200px;
+            height: 200px;
+            margin: 20px auto;
+            border: 2px solid #e2e8f0;
+            padding: 10px;
+            border-radius: 20px;
+            background: white;
+        }
+
+        .qr-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .close-btn {
+            background: #e2e8f0;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+
+        /* SCANNER CONTAINER */
+        #qr-scanner-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 10000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #reader {
+            width: 100%;
+            max-width: 500px;
+            background: black;
+            border-radius: 24px;
+            overflow: hidden;
+        }
+
+        .close-scanner {
+            margin-top: 20px;
+            background: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
         .footer {
             margin-top: 40px;
             text-align: center;
@@ -258,10 +371,12 @@
 </head>
 <body>
     <div class="container">
-        <h1>⏳ Share & Expire</h1>
+        <h1>⏳ Share & Expire · QR</h1>
         <div class="sub">
-            🔒 File hanya disimpan di browser ini. Link hanya berlaku di perangkat yang sama.<br>
-            ⏰ File akan otomatis dihapus setelah waktu expired.
+            <span>🔒 File hanya disimpan di browser ini. Link berlaku di perangkat yang sama.<br>⏰ File otomatis dihapus setelah expired.</span>
+            <button id="scanQrBtn" class="btn-scan">
+                📷 Scan QR
+            </button>
         </div>
 
         <!-- UPLOAD CARD -->
@@ -303,8 +418,26 @@
         </div>
 
         <div class="footer">
-            ⚡ OXYX · PROTOKOL X · EXPIRED OTOMATIS · 100% CLIENT‑SIDE
+            ⚡ OXYX · PROTOKOL X · QR GENERATE & SCAN · EXPIRED OTOMATIS
         </div>
+    </div>
+
+    <!-- MODAL QR CODE -->
+    <div id="qrModal" class="modal">
+        <div class="modal-content">
+            <h3>🔗 QR Code Link</h3>
+            <div id="qrImageContainer" class="qr-image">
+                <!-- QR akan diisi -->
+            </div>
+            <p id="qrFileName" style="font-weight:600; margin-bottom:8px;"></p>
+            <button id="closeQrModal" class="close-btn">Tutup</button>
+        </div>
+    </div>
+
+    <!-- SCANNER QR -->
+    <div id="qr-scanner-container">
+        <div id="reader"></div>
+        <button id="closeScanner" class="close-scanner">Tutup Scanner</button>
     </div>
 
     <script>
@@ -402,6 +535,19 @@
             const customExpiry = document.getElementById('customExpiry');
             const uploadStatus = document.getElementById('uploadStatus');
 
+            // QR Modal
+            const qrModal = document.getElementById('qrModal');
+            const qrImageContainer = document.getElementById('qrImageContainer');
+            const qrFileName = document.getElementById('qrFileName');
+            const closeQrModal = document.getElementById('closeQrModal');
+
+            // QR Scanner
+            const scanQrBtn = document.getElementById('scanQrBtn');
+            const scannerContainer = document.getElementById('qr-scanner-container');
+            const closeScanner = document.getElementById('closeScanner');
+            const readerElement = document.getElementById('reader');
+            let html5QrCode = null;
+
             // ========== UTILS ==========
             function formatBytes(bytes) {
                 if (bytes === 0) return '0 B';
@@ -417,6 +563,52 @@
                     .replace(/>/g, "&gt;")
                     .replace(/"/g, "&quot;")
                     .replace(/'/g, "&#039;");
+            }
+
+            // ========== GENERATE QR CODE (via API) ==========
+            function showQrModal(fileId, fileName) {
+                const url = new URL(window.location.href);
+                url.hash = `#file-${fileId}`;
+                const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url.toString())}`;
+                qrImageContainer.innerHTML = `<img src="${qrUrl}" alt="QR Code">`;
+                qrFileName.textContent = `📄 ${fileName}`;
+                qrModal.style.display = 'flex';
+            }
+
+            // ========== SCAN QR ==========
+            function startScanner() {
+                scannerContainer.style.display = 'flex';
+                html5QrCode = new Html5Qrcode("reader");
+                html5QrCode.start(
+                    { facingMode: "environment" }, // kamera belakang
+                    {
+                        fps: 10,
+                        qrbox: { width: 250, height: 250 }
+                    },
+                    (decodedText) => {
+                        // Sukses scan
+                        html5QrCode.stop().then(() => {
+                            scannerContainer.style.display = 'none';
+                            // Proses URL
+                            try {
+                                const url = new URL(decodedText);
+                                if (url.hash && url.hash.startsWith('#file-')) {
+                                    window.location.href = decodedText; // redirect otomatis download
+                                } else {
+                                    alert('QR Code bukan link file yang valid.');
+                                }
+                            } catch (e) {
+                                alert('QR Code tidak valid.');
+                            }
+                        }).catch(err => console.error(err));
+                    },
+                    (errorMessage) => {
+                        // ignore, terus scan
+                    }
+                ).catch(err => {
+                    alert('Gagal akses kamera: ' + err);
+                    scannerContainer.style.display = 'none';
+                });
             }
 
             // ========== RENDER FILE LIST ==========
@@ -466,8 +658,9 @@
                                     <span class="countdown ${expiredClass}">${timeText}</span>
                                 </div>
                             </div>
-                            <div style="display: flex; gap: 8px;">
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                                 <button class="btn-sm" onclick="window.copyLink('${escapeHtml(file.id)}')">🔗 Copy Link</button>
+                                <button class="btn-sm" onclick="window.showQR('${escapeHtml(file.id)}', '${escapeHtml(file.name)}')">📷 QR</button>
                                 <button class="btn-sm btn-delete" onclick="window.deleteFileById('${escapeHtml(file.id)}')">✕ Hapus</button>
                             </div>
                         </div>
@@ -476,7 +669,7 @@
                 fileListContainer.innerHTML = html;
             }
 
-            // ========== COPY LINK ==========
+            // ========== WINDOW FUNCTIONS (dipanggil dari HTML) ==========
             window.copyLink = function(fileId) {
                 const url = new URL(window.location.href);
                 url.hash = `#file-${fileId}`;
@@ -488,7 +681,6 @@
                 });
             };
 
-            // ========== DELETE ==========
             window.deleteFileById = async function(fileId) {
                 await deleteFile(fileId);
                 renderFileList();
@@ -496,11 +688,14 @@
                 setTimeout(() => { uploadStatus.innerText = ''; }, 2000);
             };
 
+            window.showQR = function(fileId, fileName) {
+                showQrModal(fileId, fileName);
+            };
+
             // ========== UPLOAD HANDLER ==========
             async function handleUpload(files) {
                 if (!files || files.length === 0) return;
 
-                // Tentukan expired time
                 let expirySeconds = parseInt(expirySelect.value);
                 if (expirySelect.value === '0') {
                     expirySeconds = parseInt(customExpiry.value);
@@ -522,7 +717,7 @@
             // ========== EVENT LISTENER ==========
             fileInput.addEventListener('change', (e) => handleUpload(e.target.files));
 
-            // Drag & drop sederhana
+            // Drag & drop
             document.body.addEventListener('dragover', (e) => e.preventDefault());
             document.body.addEventListener('drop', async (e) => {
                 e.preventDefault();
@@ -533,10 +728,35 @@
 
             // Toggle custom expiry
             expirySelect.addEventListener('change', function() {
-                if (this.value === '0') {
-                    customExpiry.style.display = 'inline-block';
-                } else {
-                    customExpiry.style.display = 'none';
+                customExpiry.style.display = this.value === '0' ? 'inline-block' : 'none';
+            });
+
+            // QR Modal close
+            closeQrModal.addEventListener('click', () => {
+                qrModal.style.display = 'none';
+            });
+
+            // Scan QR button
+            scanQrBtn.addEventListener('click', () => {
+                startScanner();
+            });
+
+            // Close scanner
+            closeScanner.addEventListener('click', () => {
+                if (html5QrCode) {
+                    html5QrCode.stop().catch(err => console.error(err));
+                }
+                scannerContainer.style.display = 'none';
+            });
+
+            // Click outside modal to close
+            window.addEventListener('click', (e) => {
+                if (e.target === qrModal) {
+                    qrModal.style.display = 'none';
+                }
+                if (e.target === scannerContainer) {
+                    if (html5QrCode) html5QrCode.stop().catch(err => console.error(err));
+                    scannerContainer.style.display = 'none';
                 }
             });
 
@@ -544,7 +764,7 @@
             async function handleHash() {
                 const hash = window.location.hash;
                 if (hash && hash.startsWith('#file-')) {
-                    const fileId = hash.substring(6); // hapus '#file-'
+                    const fileId = hash.substring(6);
                     const fileData = await getFile(fileId);
                     if (!fileData) {
                         alert('❌ File tidak ditemukan atau sudah expired.');
@@ -565,7 +785,6 @@
                     a.download = fileData.name;
                     a.click();
                     URL.revokeObjectURL(url);
-                    // Bersihkan hash
                     window.location.hash = '';
                 }
             }
@@ -575,12 +794,12 @@
                 await openDB();
                 await renderFileList();
                 await handleHash();
-                // Refresh countdown setiap 1 detik
                 refreshInterval = setInterval(renderFileList, 1000);
             };
 
             window.onbeforeunload = function() {
                 if (refreshInterval) clearInterval(refreshInterval);
+                if (html5QrCode) html5QrCode.stop().catch(err => console.error(err));
             };
 
             window.addEventListener('hashchange', handleHash);
