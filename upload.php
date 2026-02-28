@@ -32,4 +32,35 @@ if (isset($_FILES["file"])) {
         echo json_encode(['error' => 'Upload failed']);
     }
 }
+
+<?php
+$dbFile = 'fileDB.json';
+if (file_exists($dbFile)) {
+    $files = json_decode(file_get_contents($dbFile), true);
+    echo json_encode($files);
+} else {
+    echo '[]';
+}
+<?php
+if (isset($_GET['id'])) {
+    $dbFile = 'fileDB.json';
+    $files = json_decode(file_get_contents($dbFile), true);
+    
+    $fileIndex = -1;
+    foreach ($files as $i => $file) {
+        if ($file['id'] == $_GET['id']) {
+            $fileIndex = $i;
+            break;
+        }
+    }
+    
+    if ($fileIndex !== -1) {
+        unlink($files[$fileIndex]['path']);
+        array_splice($files, $fileIndex, 1);
+        file_put_contents($dbFile, json_encode($files, JSON_PRETTY_PRINT));
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['error' => 'File not found']);
+    }
+}
 ?>
