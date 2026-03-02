@@ -1,453 +1,653 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>📁 GoFile · Direct DL + QR</title>
-    <!-- html5-qrcode untuk scan QR -->
-    <script src="https://unpkg.com/html5-qrcode" minified></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FileShare - Transfer File P2P</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            background: linear-gradient(145deg, #f6f9fc 0%, #edf1f7 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 12px;
+            padding: 20px;
         }
+
         .container {
-            max-width: 1100px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 800px;
             width: 100%;
-            background: rgba(255,255,255,0.75);
-            backdrop-filter: blur(12px);
-            border-radius: 32px;
-            padding: 24px;
-            border: 1px solid rgba(255,255,255,0.5);
+            padding: 40px;
         }
-        h1 { font-size: 28px; font-weight: 700; color: #0b2b4a; margin-bottom: 8px; }
-        .sub {
-            color: #3e5e7e; margin-bottom: 24px; font-size: 15px;
-            border-left: 5px solid #2e7eb0; padding-left: 16px;
-            display: flex; justify-content: space-between; align-items: center;
-            flex-wrap: wrap;
-        }
-        .btn-scan {
-            background: #0b2b4a; color: white; border: none; padding: 10px 20px;
-            border-radius: 50px; font-weight: 600; display: flex; align-items: center; gap: 8px;
-            cursor: pointer;
-        }
-        .upload-card {
-            background: white; border-radius: 24px; padding: 24px;
-            border: 1px solid rgba(0,0,0,0.04); margin-bottom: 24px;
-        }
-        .area-upload {
-            display: flex; flex-wrap: wrap; align-items: center; gap: 16px;
-        }
-        .btn {
-            background: white; border: 1.5px solid #d4e0e9; padding: 12px 24px;
-            border-radius: 50px; font-weight: 600; font-size: 15px; color: #1e3a5f;
-            display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
-        }
-        .btn-primary {
-            background: #0b2b4a; border: none; color: white;
-            box-shadow: 0 8px 18px rgba(11,43,74,0.2);
-        }
-        .file-list {
-            background: white; border-radius: 24px; padding: 20px;
-            border: 1px solid rgba(0,0,0,0.04);
-        }
-        .file-header {
-            display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;
-        }
-        .file-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 16px; background: #fafdff; border-radius: 20px; margin-bottom: 12px;
-            border-left: 6px solid #2e7eb0; flex-wrap: wrap; gap: 12px;
-        }
-        .file-info { flex: 2; min-width: 200px; }
-        .file-name { font-weight: 700; color: #0a1c2e; word-break: break-word; }
-        .file-meta { display: flex; flex-wrap: wrap; gap: 12px; font-size: 13px; }
-        .badge-size {
-            background: #e6edf4; padding: 4px 14px; border-radius: 40px;
-        }
-        .btn-sm {
-            padding: 8px 16px; font-size: 13px; border-radius: 40px;
-            border: 1px solid #cbd6e0; background: white; font-weight: 600; cursor: pointer;
-        }
-        .btn-delete { color: #b33a3a; border-color: #f3cdcd; }
-        .progress-bar {
-            width: 100%; height: 6px; background: #e2e8f0; border-radius: 10px; margin-top: 12px;
-            overflow: hidden;
-        }
-        .progress-fill {
-            height: 100%; background: #2e7eb0; width: 0%; transition: width 0.2s;
-        }
-        .modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
-            align-items: center; justify-content: center; z-index: 9999;
-        }
-        .modal-content {
-            background: white; padding: 28px; border-radius: 32px; max-width: 400px; width: 90%;
+
+        h1 {
+            color: #667eea;
             text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
         }
-        .qr-image { width: 200px; height: 200px; margin: 20px auto; border: 2px solid #e2e8f0; padding: 10px; border-radius: 20px; background: white; }
-        .qr-image img { width: 100%; height: 100%; object-fit: contain; }
-        #qr-scanner-container {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95); z-index: 10000; flex-direction: column;
-            align-items: center; justify-content: center;
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
         }
-        #reader { width: 100%; max-width: 450px; background: black; border-radius: 24px; overflow: hidden; }
-        .close-scanner {
-            margin-top: 20px; background: white; border: none; padding: 12px 30px;
-            border-radius: 50px; font-weight: 600; cursor: pointer;
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #eee;
         }
-        .expiry-selector {
-            display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
-            margin-top: 16px;
+
+        .tab {
+            padding: 15px 30px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            color: #666;
+            transition: all 0.3s;
+            position: relative;
         }
-        .footer { margin-top: 32px; text-align: center; color: #4e6a7c; font-size: 13px; }
-        .note {
-            font-size: 13px; color: #5e6f7e; background: #f1f5f9; padding: 8px 16px; border-radius: 40px;
+
+        .tab.active {
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 60px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            background: #f8f9ff;
+            border-color: #764ba2;
+        }
+
+        .upload-area.dragover {
+            background: #f0f4ff;
+            border-color: #764ba2;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .code-display {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .code-display.active {
+            display: block;
+        }
+
+        .share-code {
+            font-size: 48px;
+            font-weight: bold;
+            color: #667eea;
+            letter-spacing: 10px;
+            font-family: 'Courier New', monospace;
+            margin: 20px 0;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 24px;
+            text-align: center;
+            letter-spacing: 8px;
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            font-weight: bold;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .file-info {
+            background: #f8f9ff;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            display: none;
+        }
+
+        .file-info.active {
+            display: block;
+        }
+
+        .file-name {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .file-size {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .progress-container {
+            margin: 20px 0;
+            display: none;
+        }
+
+        .progress-container.active {
+            display: block;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #eee;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .status {
+            text-align: center;
+            margin: 15px 0;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .connection-status {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin: 10px 0;
+        }
+
+        .connection-status.connected {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .connection-status.connecting {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .connection-status.disconnected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .instructions {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .instructions h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .instructions ol {
+            margin-left: 20px;
+            color: #666;
+        }
+
+        .instructions li {
+            margin: 5px 0;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📁 GoFile · Upload & QR</h1>
-        <div class="sub">
-            <span>⚡ Upload ke GoFile.io (gratis, max 4GB). Link langsung & QR.</span>
-            <button id="scanQrBtn" class="btn-scan">📷 Scan QR</button>
+        <h1>📁 FileShare</h1>
+        <p class="subtitle">Transfer file peer-to-peer tanpa batas ukuran</p>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('send')">📤 Kirim File</button>
+            <button class="tab" onclick="switchTab('receive')">📥 Terima File</button>
         </div>
 
-        <!-- UPLOAD CARD -->
-        <div class="upload-card">
-            <div class="area-upload">
-                <label for="fileInput" class="btn btn-primary">
-                    📁 Pilih File (max 4GB)
-                </label>
-                <input type="file" id="fileInput" hidden>
-                <span class="note">File dikirim ke server GoFile</span>
+        <!-- Tab Kirim -->
+        <div id="send-tab" class="tab-content active">
+            <div class="instructions">
+                <h3>Cara Mengirim:</h3>
+                <ol>
+                    <li>Pilih file yang ingin dikirim</li>
+                    <li>Bagikan kode 6 digit yang muncul</li>
+                    <li>Tunggu penerima terhubung</li>
+                    <li>File akan otomatis terkirim</li>
+                </ol>
             </div>
-            
-            <!-- Progress bar (muncul saat upload) -->
-            <div id="uploadProgress" style="display: none;">
-                <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-                    <span id="uploadStatus">⏳ Mengupload...</span>
-                    <span id="uploadPercent">0%</span>
-                </div>
+
+            <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                <div class="upload-icon">📎</div>
+                <h3>Klik atau seret file ke sini</h3>
+                <p>Tidak ada batasan ukuran file</p>
+            </div>
+            <input type="file" id="fileInput">
+
+            <div class="file-info" id="fileInfo">
+                <div class="file-name" id="fileName"></div>
+                <div class="file-size" id="fileSize"></div>
+            </div>
+
+            <div class="code-display" id="codeDisplay">
+                <h3>Kode Transfer:</h3>
+                <div class="share-code" id="shareCode">------</div>
+                <p>Bagikan kode ini kepada penerima</p>
+                <div class="connection-status disconnected" id="senderStatus">Menunggu penerima...</div>
+            </div>
+
+            <div class="progress-container" id="sendProgress">
                 <div class="progress-bar">
-                    <div id="uploadProgressFill" class="progress-fill" style="width:0%"></div>
+                    <div class="progress-fill" id="sendProgressFill">0%</div>
                 </div>
+                <div class="status" id="sendStatus"></div>
             </div>
-
-            <!-- Expired selector -->
-            <div class="expiry-selector">
-                <label style="font-weight:600;">⏱️ Hapus dari daftar setelah:</label>
-                <select id="expirySelect">
-                    <option value="5">5 menit</option>
-                    <option value="30">30 menit</option>
-                    <option value="60">1 jam</option>
-                    <option value="360">6 jam</option>
-                    <option value="1440">1 hari</option>
-                    <option value="10080">7 hari</option>
-                    <option value="0">Jangan hapus</option>
-                </select>
-            </div>
-
-            <div id="uploadMessage" style="margin-top: 16px; color: #2e7eb0;"></div>
         </div>
 
-        <!-- DAFTAR FILE -->
-        <div class="file-list">
-            <div class="file-header">
-                <h3>📋 File terupload</h3>
-                <span id="fileCount" style="background:#e9f2f9; padding:6px 16px; border-radius:30px;">0 file</span>
+        <!-- Tab Terima -->
+        <div id="receive-tab" class="tab-content">
+            <div class="instructions">
+                <h3>Cara Menerima:</h3>
+                <ol>
+                    <li>Minta kode 6 digit dari pengirim</li>
+                    <li>Masukkan kode di bawah ini</li>
+                    <li>Klik "Terima File"</li>
+                    <li>File akan otomatis terunduh</li>
+                </ol>
             </div>
-            <div id="fileListContainer">
-                <div class="empty-message" style="text-align:center; padding:40px; color:#657e94;">
-                    ⚡ Belum ada file. Pilih file untuk upload.
+
+            <div class="input-group">
+                <input type="text" id="codeInput" placeholder="------" maxlength="6" 
+                       oninput="this.value = this.value.toUpperCase()">
+            </div>
+
+            <button onclick="connectToSender()">Terima File</button>
+
+            <div class="connection-status disconnected" id="receiverStatus" style="margin-top: 20px; display: none;">
+                Menghubungkan...
+            </div>
+
+            <div class="file-info" id="receiveFileInfo">
+                <div class="file-name" id="receiveFileName"></div>
+                <div class="file-size" id="receiveFileSize"></div>
+            </div>
+
+            <div class="progress-container" id="receiveProgress">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="receiveProgressFill">0%</div>
                 </div>
+                <div class="status" id="receiveStatus"></div>
             </div>
         </div>
-        <div class="footer">⚡ OXYX · GOFILE.IO · QR · DIRECT DOWNLOAD</div>
-    </div>
-
-    <!-- MODAL QR -->
-    <div id="qrModal" class="modal">
-        <div class="modal-content">
-            <h3>🔗 QR Code Download</h3>
-            <div id="qrImageContainer" class="qr-image"></div>
-            <p id="qrFileName" style="font-weight:600;"></p>
-            <button id="closeQrModal" class="close-scanner" style="margin-top:12px;">Tutup</button>
-        </div>
-    </div>
-
-    <!-- SCANNER QR -->
-    <div id="qr-scanner-container">
-        <div id="reader"></div>
-        <button id="closeScanner" class="close-scanner">Tutup Scanner</button>
     </div>
 
     <script>
-(function() {
-    "use strict";
+        // WebRTC Configuration
+        const config = {
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' }
+            ]
+        };
 
-    // ========== GLOBAL ==========
-    const API_BASE = ''; // kosongkan jika api.php di folder yang sama
+        let peerConnection = null;
+        let dataChannel = null;
+        let selectedFile = null;
+        let sessionCode = null;
+        let signalingData = {};
 
-    // Elemen DOM
-    const fileInput = document.getElementById('fileInput');
-    const uploadProgress = document.getElementById('uploadProgress');
-    const uploadStatus = document.getElementById('uploadStatus');
-    const uploadPercent = document.getElementById('uploadPercent');
-    const uploadProgressFill = document.getElementById('uploadProgressFill');
-    const uploadMessage = document.getElementById('uploadMessage');
-    const fileListContainer = document.getElementById('fileListContainer');
-    const fileCountSpan = document.getElementById('fileCount');
-    const expirySelect = document.getElementById('expirySelect');
+        // Tab switching
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tab + '-tab').classList.add('active');
+        }
 
-    // QR elements
-    const qrModal = document.getElementById('qrModal');
-    const qrImageContainer = document.getElementById('qrImageContainer');
-    const qrFileName = document.getElementById('qrFileName');
-    const closeQrModal = document.getElementById('closeQrModal');
+        // Generate random 6-digit code
+        function generateCode() {
+            return Math.random().toString(36).substring(2, 8).toUpperCase();
+        }
 
-    // Scanner
-    const scanQrBtn = document.getElementById('scanQrBtn');
-    const scannerContainer = document.getElementById('qr-scanner-container');
-    const closeScanner = document.getElementById('closeScanner');
-    let html5QrCode = null;
+        // File upload handling
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
 
-    // Daftar file (dari server)
-    let fileItems = [];
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
 
-    // ========== FORMAT BYTES ==========
-    function formatBytes(bytes) {
-        if (bytes === 0) return '0 B';
-        const sizes = ['B', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(1024));
-        return parseFloat((bytes / Math.pow(1024, i)).toFixed(1)) + ' ' + sizes[i];
-    }
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
 
-    // ========== ESCAPE HTML ==========
-    function escapeHtml(unsafe) {
-        if (!unsafe) return '';
-        return unsafe
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file) handleFileSelect(file);
+        });
 
-    // ========== LOAD FILE LIST FROM SERVER ==========
-    function loadFileList() {
-        fetch(API_BASE + 'api.php?action=list')
-            .then(response => response.json())
-            .then(data => {
-                fileItems = data.map(file => ({
-                    ...file,
-                    expiresAt: file.expires_at ? new Date(file.expires_at).getTime() : null
-                }));
-                renderFileList();
-            })
-            .catch(err => {
-                console.error('Failed to load file list:', err);
-                fileListContainer.innerHTML = '<div class="empty-message">❌ Gagal memuat daftar file</div>';
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) handleFileSelect(file);
+        });
+
+        function handleFileSelect(file) {
+            selectedFile = file;
+            document.getElementById('fileName').textContent = file.name;
+            document.getElementById('fileSize').textContent = formatBytes(file.size);
+            document.getElementById('fileInfo').classList.add('active');
+            
+            sessionCode = generateCode();
+            document.getElementById('shareCode').textContent = sessionCode;
+            document.getElementById('codeDisplay').classList.add('active');
+            
+            setupSender();
+        }
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        // Sender setup
+        async function setupSender() {
+            peerConnection = new RTCPeerConnection(config);
+            
+            dataChannel = peerConnection.createDataChannel('fileTransfer');
+            dataChannel.binaryType = 'arraybuffer';
+            
+            dataChannel.onopen = () => {
+                document.getElementById('senderStatus').textContent = 'Terhubung!';
+                document.getElementById('senderStatus').className = 'connection-status connected';
+                sendFile();
+            };
+
+            dataChannel.onclose = () => {
+                document.getElementById('senderStatus').textContent = 'Terputus';
+                document.getElementById('senderStatus').className = 'connection-status disconnected';
+            };
+
+            peerConnection.onicecandidate = (event) => {
+                if (event.candidate) {
+                    signalingData[sessionCode] = {
+                        type: 'offer',
+                        offer: peerConnection.localDescription,
+                        candidates: signalingData[sessionCode]?.candidates || []
+                    };
+                    signalingData[sessionCode].candidates.push(event.candidate);
+                    localStorage.setItem('signaling', JSON.stringify(signalingData));
+                }
+            };
+
+            const offer = await peerConnection.createOffer();
+            await peerConnection.setLocalDescription(offer);
+            
+            signalingData[sessionCode] = {
+                type: 'offer',
+                offer: offer,
+                candidates: []
+            };
+            localStorage.setItem('signaling', JSON.stringify(signalingData));
+            
+            checkForAnswer();
+        }
+
+        function checkForAnswer() {
+            const interval = setInterval(() => {
+                const data = JSON.parse(localStorage.getItem('signaling') || '{}');
+                if (data[sessionCode]?.answer) {
+                    clearInterval(interval);
+                    peerConnection.setRemoteDescription(new RTCSessionDescription(data[sessionCode].answer));
+                    
+                    if (data[sessionCode].receiverCandidates) {
+                        data[sessionCode].receiverCandidates.forEach(candidate => {
+                            peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+                        });
+                    }
+                }
+            }, 1000);
+        }
+
+        async function sendFile() {
+            if (!selectedFile || !dataChannel) return;
+            
+            document.getElementById('sendProgress').classList.add('active');
+            
+            const metadata = JSON.stringify({
+                name: selectedFile.name,
+                size: selectedFile.size,
+                type: selectedFile.type
             });
-    }
+            dataChannel.send(metadata);
+            
+            const chunkSize = 16384;
+            const totalChunks = Math.ceil(selectedFile.size / chunkSize);
+            let offset = 0;
+            let chunksSent = 0;
 
-    // ========== UPLOAD FILE TO SERVER ==========
-    async function handleFileUpload(file) {
-        if (!file) return;
+            const reader = new FileReader();
+            
+            reader.onload = (e) => {
+                dataChannel.send(e.target.result);
+                offset += e.target.result.byteLength;
+                chunksSent++;
+                
+                const progress = Math.round((chunksSent / totalChunks) * 100);
+                document.getElementById('sendProgressFill').style.width = progress + '%';
+                document.getElementById('sendProgressFill').textContent = progress + '%';
+                document.getElementById('sendStatus').textContent = 
+                    `Mengirim: ${formatBytes(offset)} / ${formatBytes(selectedFile.size)}`;
+                
+                if (offset < selectedFile.size) {
+                    readSlice(offset);
+                } else {
+                    document.getElementById('sendStatus').textContent = 'Transfer selesai!';
+                    setTimeout(() => {
+                        dataChannel.send('TRANSFER_COMPLETE');
+                    }, 100);
+                }
+            };
+            
+            function readSlice(o) {
+                const slice = selectedFile.slice(o, o + chunkSize);
+                reader.readAsArrayBuffer(slice);
+            }
+            
+            readSlice(0);
+        }
 
-        uploadProgress.style.display = 'block';
-        uploadPercent.textContent = '0%';
-        uploadProgressFill.style.width = '0%';
-        uploadMessage.textContent = '';
+        // Receiver setup
+        async function connectToSender() {
+            const code = document.getElementById('codeInput').value.trim().toUpperCase();
+            if (code.length !== 6) {
+                alert('Masukkan kode 6 digit yang valid!');
+                return;
+            }
 
-        const expiryMinutes = parseInt(expirySelect.value);
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('expiry', expiryMinutes);
+            document.getElementById('receiverStatus').style.display = 'inline-block';
+            document.getElementById('receiverStatus').textContent = 'Menghubungkan...';
+            document.getElementById('receiverStatus').className = 'connection-status connecting';
 
-        try {
-            const response = await fetch(API_BASE + 'api.php?action=upload', {
-                method: 'POST',
-                body: formData
-            });
-            const result = await response.json();
+            const data = JSON.parse(localStorage.getItem('signaling') || '{}');
+            if (!data[code] || !data[code].offer) {
+                alert('Kode tidak valid atau pengirim belum siap!');
+                document.getElementById('receiverStatus').style.display = 'none';
+                return;
+            }
 
-            if (result.success) {
-                const newFile = {
-                    id: result.file.id,
-                    name: result.file.name,
-                    size: result.file.size,
-                    download_url: result.file.download_url,
-                    expiresAt: result.file.expires_at ? new Date(result.file.expires_at).getTime() : null,
-                    addedAt: Date.now()
+            peerConnection = new RTCPeerConnection(config);
+            
+            let receivedSize = 0;
+            let receivedChunks = [];
+            let fileMetadata = null;
+
+            peerConnection.ondatachannel = (event) => {
+                dataChannel = event.channel;
+                dataChannel.binaryType = 'arraybuffer';
+                
+                dataChannel.onopen = () => {
+                    document.getElementById('receiverStatus').textContent = 'Terhubung!';
+                    document.getElementById('receiverStatus').className = 'connection-status connected';
                 };
-                fileItems.unshift(newFile);
-                renderFileList();
-                uploadMessage.textContent = `✅ ${result.file.name} berhasil diupload!`;
-            } else {
-                throw new Error(result.error || 'Upload failed');
-            }
-        } catch (err) {
-            console.error(err);
-            uploadMessage.textContent = `❌ Gagal upload: ${err.message}`;
-        } finally {
-            uploadProgress.style.display = 'none';
-            fileInput.value = '';
-        }
-    }
 
-    // ========== RENDER FILE LIST ==========
-    function renderFileList() {
-        const now = Date.now();
-        fileCountSpan.textContent = `${fileItems.length} file`;
+                dataChannel.onmessage = (e) => {
+                    if (typeof e.data === 'string') {
+                        if (e.data === 'TRANSFER_COMPLETE') {
+                            saveFile();
+                            return;
+                        }
+                        fileMetadata = JSON.parse(e.data);
+                        document.getElementById('receiveFileName').textContent = fileMetadata.name;
+                        document.getElementById('receiveFileSize').textContent = formatBytes(fileMetadata.size);
+                        document.getElementById('receiveFileInfo').classList.add('active');
+                        document.getElementById('receiveProgress').classList.add('active');
+                    } else {
+                        receivedChunks.push(e.data);
+                        receivedSize += e.data.byteLength;
+                        
+                        const progress = Math.round((receivedSize / fileMetadata.size) * 100);
+                        document.getElementById('receiveProgressFill').style.width = progress + '%';
+                        document.getElementById('receiveProgressFill').textContent = progress + '%';
+                        document.getElementById('receiveStatus').textContent = 
+                            `Menerima: ${formatBytes(receivedSize)} / ${formatBytes(fileMetadata.size)}`;
+                    }
+                };
+            };
 
-        if (fileItems.length === 0) {
-            fileListContainer.innerHTML = `<div class="empty-message">📭 Belum ada file. Upload sekarang!</div>`;
-            return;
-        }
-
-        let html = '';
-        fileItems.forEach((file, index) => {
-            let expiryText = '';
-            if (file.expiresAt) {
-                const expiresAt = file.expiresAt;
-                if (expiresAt > now) {
-                    const remaining = expiresAt - now;
-                    const minutes = Math.floor(remaining / 60000);
-                    const seconds = Math.floor((remaining % 60000) / 1000);
-                    expiryText = `⏳ ${minutes}m ${seconds}s`;
-                } else {
-                    expiryText = `⏹️ Expired`;
+            peerConnection.onicecandidate = (event) => {
+                if (event.candidate) {
+                    const signaling = JSON.parse(localStorage.getItem('signaling') || '{}');
+                    signaling[code].receiverCandidates = signaling[code].receiverCandidates || [];
+                    signaling[code].receiverCandidates.push(event.candidate);
+                    localStorage.setItem('signaling', JSON.stringify(signaling));
                 }
-            } else {
-                expiryText = `∞ Permanen`;
-            }
+            };
 
-            html += `
-                <div class="file-item" data-file-id="${escapeHtml(file.id)}">
-                    <div class="file-info">
-                        <div class="file-name">📄 ${escapeHtml(file.name)}</div>
-                        <div class="file-meta">
-                            <span class="badge-size">${formatBytes(file.size)}</span>
-                            <span class="badge-size" style="background:#ffeed9;">${expiryText}</span>
-                        </div>
-                    </div>
-                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                        <button class="btn-sm" onclick="window.copyLink('${escapeHtml(file.download_url)}')">🔗 Copy Link</button>
-                        <button class="btn-sm" onclick="window.location.href='${escapeHtml(file.download_url)}'">⬇️ Download</button>
-                        <button class="btn-sm btn-delete" onclick="window.deleteFile('${escapeHtml(file.id)}')">✕ Hapus</button>
-                    </div>
-                </div>
-            `;
-        });
-        fileListContainer.innerHTML = html;
-    }
-
-    // ========== GLOBAL FUNCTIONS ==========
-    window.copyLink = function(link) {
-        navigator.clipboard.writeText(link).then(() => {
-            uploadMessage.textContent = '✅ Link disalin!';
-            setTimeout(() => { uploadMessage.textContent = ''; }, 2000);
-        }).catch(() => {
-            prompt('Salin manual:', link);
-        });
-    };
-
-    window.deleteFile = function(fileId) {
-        fetch(API_BASE + 'api.php?action=delete&id=' + fileId, { method: 'DELETE' })
-            .then(response => response.json())
-            .then(result => {
-                if (result.success) {
-                    fileItems = fileItems.filter(f => f.id !== fileId);
-                    renderFileList();
-                    uploadMessage.textContent = '🗑️ File dihapus dari daftar';
-                    setTimeout(() => { uploadMessage.textContent = ''; }, 2000);
-                } else {
-                    alert('Gagal menghapus file');
-                }
-            })
-            .catch(err => {
-                console.error(err);
-                alert('Error deleting file');
-            });
-    };
-
-    window.showQR = function(link, fileName) {
-        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(link)}`;
-        qrImageContainer.innerHTML = `<img src="${qrUrl}" alt="QR Code">`;
-        qrFileName.textContent = `📄 ${fileName}`;
-        qrModal.style.display = 'flex';
-    };
-
-    // ========== EVENT LISTENERS ==========
-    fileInput.addEventListener('change', (e) => {
-        if (e.target.files.length > 0) {
-            handleFileUpload(e.target.files[0]);
-        }
-    });
-
-    document.body.addEventListener('dragover', (e) => e.preventDefault());
-    document.body.addEventListener('drop', async (e) => {
-        e.preventDefault();
-        if (e.dataTransfer.files.length > 0) {
-            handleFileUpload(e.dataTransfer.files[0]);
-        }
-    });
-
-    closeQrModal.addEventListener('click', () => qrModal.style.display = 'none');
-    window.addEventListener('click', (e) => {
-        if (e.target === qrModal) qrModal.style.display = 'none';
-        if (e.target === scannerContainer) {
-            if (html5QrCode) html5QrCode.stop();
-            scannerContainer.style.display = 'none';
-        }
-    });
-
-    function startScanner() {
-        scannerContainer.style.display = 'flex';
-        html5QrCode = new Html5Qrcode("reader");
-        html5QrCode.start(
-            { facingMode: "environment" },
-            { fps: 10, qrbox: { width: 250, height: 250 } },
-            (decodedText) => {
-                html5QrCode.stop().then(() => {
-                    scannerContainer.style.display = 'none';
-                    window.open(decodedText, '_blank');
+            await peerConnection.setRemoteDescription(new RTCSessionDescription(data[code].offer));
+            
+            if (data[code].candidates) {
+                data[code].candidates.forEach(candidate => {
+                    peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
                 });
-            },
-            (err) => {}
-        ).catch(err => {
-            alert('Gagal akses kamera: ' + err);
-            scannerContainer.style.display = 'none';
-        });
-    }
+            }
 
-    scanQrBtn.addEventListener('click', startScanner);
-    closeScanner.addEventListener('click', () => {
-        if (html5QrCode) html5QrCode.stop();
-        scannerContainer.style.display = 'none';
-    });
+            const answer = await peerConnection.createAnswer();
+            await peerConnection.setLocalDescription(answer);
+            
+            const signaling = JSON.parse(localStorage.getItem('signaling') || '{}');
+            signaling[code].answer = answer;
+            localStorage.setItem('signaling', JSON.stringify(signaling));
 
-    // ========== INITIALIZE ==========
-    window.onload = function() {
-        loadFileList();
-
-        // Update countdown setiap detik
-        setInterval(() => {
-            renderFileList(); // render ulang untuk update countdown
-        }, 1000);
-    };
-})();
+            function saveFile() {
+                const blob = new Blob(receivedChunks, { type: fileMetadata.type });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileMetadata.name;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                document.getElementById('receiveStatus').textContent = 'Download selesai!';
+            }
+        }
     </script>
 </body>
 </html>
-
